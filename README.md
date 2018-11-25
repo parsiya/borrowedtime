@@ -17,6 +17,8 @@ Note: Borrowed Time is under heavy development. The API of sub-packages and `pro
 * Automatic editor detection on Windows.
 * Add/remove/edit data files and project/file templates.
 
+![main command](.github/maincmd.png)
+
 ## Operating System Support
 Borrowed Time is mainly developed and used on Windows. Currently only Windows is supported. However, no OS dependent libraries are in use so default editors/locations/paths can be added for other Operating Systems.
 
