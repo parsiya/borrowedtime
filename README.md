@@ -23,14 +23,20 @@ Note: Borrowed Time is under heavy development. The API of sub-packages and `pro
 Borrowed Time is mainly developed and used on Windows. Currently only Windows is supported. However, no OS dependent libraries are in use so default editors/locations/paths can be added for other Operating Systems.
 
 ## Installation
-Borrowed Time depends on the following external packages:
 
-* https://github.com/basgys/goxml2json
-* https://github.com/olekukonko/tablewriter
-* https://github.com/c-bata/go-prompt
-* https://github.com/starkriedesel/prompter.
-* https://github.com/mholt/archiver
-* https://github.com/parsiya/golnk
+1. Run `dep ensure` to download all vendored dependencies.
+2. `go run main.go` or `go build` to build the program.
+
+## dependencies
+Borrowed Time directly uses the following packages:
+
+* https://github.com/basgys/goxml2json"
+* https://github.com/c-bata/go-prompt"
+* https://github.com/mholt/archiver"
+* https://github.com/mitchellh/go-homedir"
+* https://github.com/olekukonko/tablewriter"
+* https://github.com/parsiya/golnk"
+* https://github.com/starkriedesel/prompter"
 
 ## Quickstart
 Execute Borrowed Time and run the `Deploy` command. It creates a directory named `borrowedtime` in your home directory and opens the configuration file in the default editor in your OS. Home is based on [go-homedir](https://github.com/mitchellh/go-homedir). Home on Windows is `C:\Users\[your-user]\`.
@@ -152,4 +158,4 @@ Opensourced under the Apache License v 2.0 license. See [LICENSE](LICENSE) for d
 5. Explain all commands.
 6. Add generation of Burp project based on a base Burp configuration file.
     * Research and add custom generation of Burp config files based on project using name, credentials, etc.
-7. Add `dep` support.
+7. ~~Add `dep` support.~~
