@@ -1,6 +1,7 @@
 package config
 
 import (
+	"compress/flate"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -152,7 +153,8 @@ func Backup(filename string) error {
 		return fmt.Errorf("config.Backup: %s", err.Error())
 	}
 	cfgPath, _ := ConfigFilePath()
-	return archiver.Zip.Make(backupFilename, []string{templatesDir, cfgPath, dataDir})
+	zip := archiver.Zip{CompressionLevel: flate.DefaultCompression}
+	return zip.Archive([]string{templatesDir, cfgPath, dataDir}, backupFilename)
 }
 
 // Restore restores config.json and the templates directory from a backup file.
@@ -176,7 +178,12 @@ func Restore(filename string) error {
 	if !exists {
 		return fmt.Errorf("config.Restore: back up file %s not found", backupFile)
 	}
-	return archiver.Zip.Open(backupFile, cfgDir)
+	zip := archiver.Zip{
+		CompressionLevel:  flate.DefaultCompression,
+		MkdirAll:          true,
+		OverwriteExisting: true,
+	}
+	return zip.Unarchive(backupFile, cfgDir)
 }
 
 // BackupFiles returns all files in the backup directory.
