@@ -12,26 +12,41 @@ import (
 // Data command.
 
 // DataCmd returns the data command.
-func DataCmd() prompter.Cmd {
+func DataCmd() prompter.Command {
 
-	listDataCmd := prompter.SubCommand(
-		"list",
-		"list all data files",
-		listDataExecutor,
-	)
+	listDataCmd := prompter.Command{
+		Name:        "list",
+		Description: "list all data files",
+		Executor:    listDataExecutor,
+	}
 
-	dataCmd := prompter.SubCommand(
-		"data",
-		"data files configuration",
-		dataExecutor,
-	)
-	dataCmd.AddOption("view", "view data file", false, viewDataCompleter)
+	dataCmd := prompter.Command{
+		Name:        "data",
+		Description: "data files configuration",
+		Executor:    dataExecutor,
+	}
 
-	// Add is also added as an argument.
-	dataCmd.AddOption("add", "add data file", false, addDataCompleter)
+	viewArgument := prompter.Argument{
+		Name:              "view",
+		Description:       "view data file",
+		ArgumentCompleter: viewDataCompleter,
+	}
+
+	addArgument := prompter.Argument{
+		Name:              "add",
+		Description:       "add data file",
+		ArgumentCompleter: addDataCompleter,
+	}
 
 	// Edit uses the same completer as view.
-	dataCmd.AddOption("edit", "edit data file", false, viewDataCompleter)
+	editArgument := prompter.Argument{
+		Name:              "edit",
+		Description:       "edit data file",
+		ArgumentCompleter: viewDataCompleter,
+	}
+
+	// Add all arguments to the command.
+	dataCmd.AddArguments(viewArgument, addArgument, editArgument)
 
 	dataCmd.AddSubCommands(listDataCmd)
 

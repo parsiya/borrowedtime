@@ -7,6 +7,6 @@ import (
 // Exit Command.
 
 // ExitCmd returns the exit command. This cannot be in main because of import cycle.
-func ExitCmd() prompter.Cmd {
+func ExitCmd() prompter.Command {
 	return prompter.ExitCommand("exit", "exit the application")
 }

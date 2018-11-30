@@ -12,47 +12,54 @@ import (
 // Config command.
 
 // ConfigCmd returns the config command.
-func ConfigCmd() prompter.Cmd {
+func ConfigCmd() prompter.Command {
 
-	resetCmd := prompter.SubCommand(
-		"reset",
-		"reset borrowed time and overwrite current configuration",
-		resetExecutor,
-	)
-	resetCmd.AddOption("-file", "(optional) backup file before reset", false, resetCompleter)
+	resetCmd := prompter.Command{
+		Name:        "reset",
+		Description: "reset borrowed time and overwrite current configuration",
+		Executor:    resetExecutor,
+	}
+	resetCmd.AddArguments(prompter.Argument{
+		Name:              "-file",
+		Description:       "(optional) backup file before reset",
+		ArgumentCompleter: resetCompleter,
+	})
 
-	backupCmd := prompter.SubCommand(
-		"backup",
-		"backup configuration and templates",
-		backupExecutor,
-	)
-	backupCmd.AddOption("-file", "(optional) backup file", false, resetCompleter)
+	backupCmd := prompter.Command{
+		Name:        "backup",
+		Description: "backup configuration and templates",
+		Executor:    backupExecutor,
+	}
+	backupCmd.AddArguments(prompter.Argument{
+		Name:              "-file",
+		Description:       "(optional) backup file",
+		ArgumentCompleter: resetCompleter,
+	})
 
-	editConfigCmd := prompter.SubCommand(
-		"edit",
-		"edit configuration file",
-		editConfigExecutor,
-	)
+	editConfigCmd := prompter.Command{
+		Name:        "edit",
+		Description: "edit configuration file",
+		Executor:    editConfigExecutor,
+	}
 
-	viewConfigCmd := prompter.SubCommand(
-		"view",
-		"view contents of configuration file",
-		viewConfigExecutor,
-	)
+	viewConfigCmd := prompter.Command{
+		Name:        "view",
+		Description: "view contents of configuration file",
+		Executor:    viewConfigExecutor,
+	}
 
 	// SubCommands are normal commands. In this case we are creating an argument
 	// to add view as an option (but without the "-") instead of a subcommand.
-	configCmd := prompter.SubCommand(
-		"config",
-		"configure workspace",
-		configExecutor,
-	)
-	configCmd.AddOption(
-		"restore",
-		"restore configuration and templates",
-		false,
-		restoreCompleter,
-	)
+	configCmd := prompter.Command{
+		Name:        "config",
+		Description: "configure workspace",
+		Executor:    configExecutor,
+	}
+	configCmd.AddArguments(prompter.Argument{
+		Name:              "restore",
+		Description:       "restore configuration and templates",
+		ArgumentCompleter: restoreCompleter,
+	})
 	configCmd.AddSubCommands(resetCmd, backupCmd, editConfigCmd, viewConfigCmd)
 
 	return configCmd

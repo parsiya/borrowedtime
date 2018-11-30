@@ -12,28 +12,41 @@ import (
 // Project command.
 
 // ProjectCmd returns the project command.
-func ProjectCmd() prompter.Cmd {
+func ProjectCmd() prompter.Command {
 
-	listProjectsCmd := prompter.SubCommand(
-		"list",
-		"list all projects in the workspace",
-		listProjectExecutor,
-	)
+	listProjectsCmd := prompter.Command{
+		Name:        "list",
+		Description: "list all projects in the workspace",
+		Executor:    listProjectExecutor,
+	}
 
-	projectCmd := prompter.SubCommand(
-		"project",
-		"project configuration",
-		projectExecutor,
-	)
-	projectCmd.AddOption("open", "open project with default editor", false, openProjectCompleter)
+	projectCmd := prompter.Command{
+		Name:        "project",
+		Description: "project configuration",
+		Executor:    projectExecutor,
+	}
+	projectCmd.AddArguments(prompter.Argument{
+		Name:              "open",
+		Description:       "open project with default editor",
+		ArgumentCompleter: openProjectCompleter,
+	})
 
-	createProjectsCmd := prompter.SubCommand(
-		"create",
-		"create a new project in the workspace",
-		createProjectExecutor,
-	)
-	createProjectsCmd.AddOption("name", "unique name of the new project", false, createProjectCompleter)
-	createProjectsCmd.AddOption("template", "(optional) project template name", false, createProjectCompleter)
+	createProjectsCmd := prompter.Command{
+		Name:        "create",
+		Description: "create a new project in the workspace",
+		Executor:    createProjectExecutor,
+	}
+	nameArgument := prompter.Argument{
+		Name:              "name",
+		Description:       "unique name of the new project",
+		ArgumentCompleter: createProjectCompleter,
+	}
+	templateArgument := prompter.Argument{
+		Name:              "template",
+		Description:       "(optional) project template name",
+		ArgumentCompleter: createProjectCompleter,
+	}
+	createProjectsCmd.AddArguments(nameArgument, templateArgument)
 
 	projectCmd.AddSubCommands(listProjectsCmd, createProjectsCmd)
 	return projectCmd

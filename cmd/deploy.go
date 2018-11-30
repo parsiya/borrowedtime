@@ -10,13 +10,12 @@ import (
 // Deploy command.
 
 // DeployCmd returns the init command that initializes borrowed time.
-func DeployCmd() prompter.Cmd {
-	deployCmd := prompter.SubCommand(
-		"deploy",
-		"deploy borrowed time and generate a config file",
-		deployExecutor,
-	)
-	return deployCmd
+func DeployCmd() prompter.Command {
+	return prompter.Command{
+		Name:        "deploy",
+		Description: "deploy borrowed time and generate a config file",
+		Executor:    deployExecutor,
+	}
 }
 
 // deployExecutor initializes borrowed time but fails if config is already present.
