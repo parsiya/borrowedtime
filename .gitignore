@@ -3,3 +3,4 @@ debug.test
 *.exe
 thumbs.db
 Thumbs.db
+vendor/
