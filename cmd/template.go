@@ -12,28 +12,41 @@ import (
 // Template command.
 
 // TemplateCmd returns the template command.
-func TemplateCmd() prompter.Cmd {
+func TemplateCmd() prompter.Command {
 
-	listTemplateCmd := prompter.SubCommand(
-		"list",
-		"list all templates",
-		listTemplateExecutor,
-	)
+	listTemplateCmd := prompter.Command{
+		Name:        "list",
+		Description: "list all templates",
+		Executor:    listTemplateExecutor,
+	}
 
 	// SubCommands are normal commands. In this case we are creating an argument
 	// to add view as an option (but without the "-") instead of a subcommand.
-	templateCmd := prompter.SubCommand(
-		"template",
-		"template configuration",
-		templateExecutor,
-	)
-	templateCmd.AddOption("view", "view template", false, viewTemplateCompleter)
+	templateCmd := prompter.Command{
+		Name:        "template",
+		Description: "template configuration",
+		Executor:    templateExecutor,
+	}
 
-	// Add is also added as an argument.
-	templateCmd.AddOption("add", "add template", false, addTemplateCompleter)
+	viewArgument := prompter.Argument{
+		Name:              "view",
+		Description:       "view template",
+		ArgumentCompleter: viewTemplateCompleter,
+	}
 
-	// We can use viewTemplateCompleter because we need to show all templates.
-	templateCmd.AddOption("edit", "edit template", false, viewTemplateCompleter)
+	addArgument := prompter.Argument{
+		Name:              "add",
+		Description:       "add template",
+		ArgumentCompleter: addTemplateCompleter,
+	}
+
+	// Edit uses the same completer as view.
+	editArgument := prompter.Argument{
+		Name:              "edit",
+		Description:       "edit template",
+		ArgumentCompleter: viewTemplateCompleter,
+	}
+	templateCmd.AddArguments(viewArgument, addArgument, editArgument)
 
 	templateCmd.AddSubCommands(listTemplateCmd)
 
