@@ -5,7 +5,7 @@ It's named after a discipline priest spell in World of Warcraft:
 
 * https://www.wowhead.com/spell=213642/borrowed-time
 
-Note: Borrowed Time is under heavy development. The API of sub-packages and `prompter` might be modified. `prompter` is not released yet.
+Note: Borrowed Time is under heavy development. The API of sub-packages and `prompter` might be modified.
 
 ## Capabilities
 
@@ -28,7 +28,9 @@ Borrowed Time depends on the following external packages:
 * https://github.com/basgys/goxml2json
 * https://github.com/olekukonko/tablewriter
 * https://github.com/c-bata/go-prompt
-* https://github.com/starkriedesel/prompter. **This package is not released yet.**
+* https://github.com/starkriedesel/prompter.
+* https://github.com/mholt/archiver
+* https://github.com/parsiya/golnk
 
 ## Quickstart
 Execute Borrowed Time and run the `Deploy` command. It creates a directory named `borrowedtime` in your home directory and opens the configuration file in the default editor in your OS. Home is based on [go-homedir](https://github.com/mitchellh/go-homedir). Home on Windows is `C:\Users\[your-user]\`.
@@ -145,7 +147,7 @@ Opensourced under the Apache License v 2.0 license. See [LICENSE](LICENSE) for d
 
 1. Change error message in all unexported functions and remove module name. Only leave the error message?
 2. ~~Add `edit` command to template and data files.~~
-3. Update docs after `prompter` is released.
+3. ~~Update docs after `prompter` is released.~~
 4. Create gifs of some commands.
 5. Explain all commands.
 6. Add generation of Burp project based on a base Burp configuration file.
