@@ -67,12 +67,6 @@ func (p *Project) Create(templateName string, overwrite bool) error {
 	return nil
 }
 
-// // Open opens the project in the workspace designated editor. Doesn't work if the
-// // editor does not support opening directories.
-// func (p *Project) Open() error {
-// 	return shared.OpenWithEditor(p.WorkspaceConfig["editor"], p.ProjectConfig["root"])
-// }
-
 // generateTemplate creates a template using the provided template string and project info.
 func (p Project) generateTemplate(templateName string) (string, error) {
 	return genTemplate(p, templateName)
@@ -84,7 +78,7 @@ func genTemplate(p Project, tmplName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// if template is not found.
+	// If template is not found.
 	if pth == "" {
 		return "", fmt.Errorf("project.genTemplate: template %s not found", tmplName)
 	}

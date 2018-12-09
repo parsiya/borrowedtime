@@ -37,12 +37,12 @@ func ProjectCmd() prompter.Command {
 		Executor:    createProjectExecutor,
 	}
 	nameArgument := prompter.Argument{
-		Name:              "name",
+		Name:              "-name",
 		Description:       "unique name of the new project",
 		ArgumentCompleter: createProjectCompleter,
 	}
 	templateArgument := prompter.Argument{
-		Name:              "template",
+		Name:              "-template",
 		Description:       "(optional) project template name",
 		ArgumentCompleter: createProjectCompleter,
 	}
@@ -64,20 +64,6 @@ func projectExecutor(args prompter.CmdArgs) error {
 		}
 		return OpenProject(project)
 	}
-
-	// if args.Contains("add") {
-	// 	// Read the value and add the file.
-	// 	dataFile, err := args.GetFirstValue("add")
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	// Read contents of the file.
-	// 	dataContent, err := shared.ReadFileString(dataFile)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	return config.AddData(dataFile, dataContent, false)
-	// }
 	return nil
 }
 
@@ -125,13 +111,13 @@ func createProjectCompleter(optName string, _ []string) []prompt.Suggest {
 	// Create an empty list of suggestions.
 	sugs := []prompt.Suggest{}
 	switch optName {
-	case "name":
+	case "-name":
 		sugs = append(sugs,
 			prompt.Suggest{Text: "", Description: "should be unique"})
 		return sugs
-	case "template":
-		// Show all templates. This will have non-project templates, but we can
-		// delegate that responsibility to the user.
+	case "-template":
+		// Show all templates. The list will have non-project templates, but we
+		// can delegate that responsibility to the user.
 
 		// Taken from viewTemplateCompleter in template.go.
 		// Get template map.
@@ -165,8 +151,8 @@ func createProjectExecutor(args prompter.CmdArgs) (err error) {
 	projectName := ""
 	templateName := ""
 
-	if args.Contains("name") {
-		projectName, err = args.GetFirstValue("name")
+	if args.Contains("-name") {
+		projectName, err = args.GetFirstValue("-name")
 		if err != nil {
 			return err
 		}
@@ -174,8 +160,8 @@ func createProjectExecutor(args prompter.CmdArgs) (err error) {
 		return fmt.Errorf("please provide project name")
 	}
 
-	if args.Contains("template") {
-		templateName, err = args.GetFirstValue("name")
+	if args.Contains("-template") {
+		templateName, err = args.GetFirstValue("-template")
 		if err != nil {
 			return err
 		}
@@ -194,18 +180,4 @@ func createProjectExecutor(args prompter.CmdArgs) (err error) {
 		return err
 	}
 	return OpenProject(projectName)
-
-	// if args.Contains("add") {
-	// 	// Read the value and add the file.
-	// 	dataFile, err := args.GetFirstValue("add")
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	// Read contents of the file.
-	// 	dataContent, err := shared.ReadFileString(dataFile)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	return config.AddData(dataFile, dataContent, false)
-	// }
 }

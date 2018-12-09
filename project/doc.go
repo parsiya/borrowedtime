@@ -20,8 +20,6 @@
 	TODO:
 	1. ~~Find a way to pass project info to the templates to create them? Maybe get it from path?~~ Done
 	2.
-
-
 */
 
 package project

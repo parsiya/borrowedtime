@@ -28,7 +28,7 @@ func main() {
 	// Read the config file. If it does not exist, print an error.
 	_, err = config.Read()
 	if err != nil {
-		fmt.Println("Config could not be read, use Deploy.")
+		fmt.Println("Cannot read config, use Deploy.")
 	}
 
 	// fmt.Println(shared.StructToJSONString(cfg, true))
