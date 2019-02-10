@@ -17,12 +17,12 @@ const (
 
 	defaultProjectConfig = `
 {
-	"pix": "{{ .Workspace }}\\{{ .ProjectName }}\\@pix",
-	"findings":"{{ .Workspace }}\\{{ .ProjectName }}\\@findings.md",
-	"notes":"{{ .Workspace }}\\{{ .ProjectName }}\\@notes.md",
-	"root":"{{ .Workspace }}\\{{ .ProjectName }}",
-	"report":"{{ .Workspace }}\\{{ .ProjectName }}\\@report",
-	"reportconfig":"{{ .Workspace }}\\{{ .ProjectName }}\\@report\\report.json"
+	"pix": "{{ .Workspace }}/{{ .ProjectName }}/@pix",
+	"findings":"{{ .Workspace }}/{{ .ProjectName }}/@findings.md",
+	"notes":"{{ .Workspace }}/{{ .ProjectName }}/@notes.md",
+	"root":"{{ .Workspace }}/{{ .ProjectName }}",
+	"report":"{{ .Workspace }}/{{ .ProjectName }}/@report",
+	"reportconfig":"{{ .Workspace }}/{{ .ProjectName }}/@report/report.json"
 }
 `
 )

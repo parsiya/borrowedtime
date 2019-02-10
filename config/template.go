@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"path"
 	"path/filepath"
 	"sort"
 
@@ -23,7 +22,7 @@ func TemplateDir() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("config.TemplateDir: %s", err.Error())
 	}
-	return path.Join(configDir, "templates"), nil
+	return filepath.Join(configDir, "templates"), nil
 }
 
 // TemplatePath returns template path. Returns "" if template does not exist.
@@ -80,7 +79,7 @@ func AddTemplate(name, content string, overwrite bool) error {
 	// extensions are removed when creating the map but it helps with syntax
 	// highlighting and editor support during file edit.
 	name = shared.AddExtension(name, "json")
-	pa := path.Join(tmplDir, name)
+	pa := filepath.Join(tmplDir, name)
 	err = shared.WriteFileString(content, pa, true)
 	// Can replace with "return shared.WriteFileString" if we do not want the custom error message.
 	if err != nil {

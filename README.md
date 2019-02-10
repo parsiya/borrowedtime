@@ -60,9 +60,9 @@ Borrowed Time uses a configuration file to persist settings. It's a simple JSON 
 ``` json
 {
     "burppath": "",
-    "editor": "C:\\Program Files\\Microsoft VS Code\\Code.exe",
+    "editor": "C:/Program Files/Microsoft VS Code/Code.exe",
     "projectstructure": "project-structure",
-    "workspace": "C:\\Users\\Parsia\\Desktop\\projects",
+    "workspace": "C:/Users/Parsia/Desktop/projects",
     "yourname": ""
 }
 ```

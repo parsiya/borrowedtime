@@ -47,10 +47,10 @@ func initiateConfig(overwrite bool) error {
 	}
 	// If exists, return an error because we do not want extra inits to overwrite everything.
 	if exists && !overwrite {
-		return fmt.Errorf("config.initiateConfig: config already exists, use Reset()")
+		return fmt.Errorf("config.initiateConfig: config already exists, use \"config reset\"")
 	}
 
-	// Create "borrowedtime/templates" in home directory. MkdirAll creates the
+	// Create "borrowedtime/templates" in home directory. MkdirAll creates
 	// parents if needed.
 	// We can ignore the error because we already called ConfigDir()
 	tmplDir, _ := TemplateDir()
@@ -158,7 +158,7 @@ func Backup(filename string) error {
 }
 
 // Restore restores config.json and the templates directory from a backup file.
-// Don't provide fullpath, just the filename including the extension.
+// Don't provide fullpath, just filename and extension.
 func Restore(filename string) error {
 	cfgDir, _ := configDir()
 	backupDir, _ := backupDir()
@@ -223,14 +223,14 @@ func createDefaultConfig() error {
 	// Set project structure template name.
 	defaultCfg.Set("projectstructure", "project-structure")
 
-	// Set workspace to Desktop\\projects on Windows.
+	// Set workspace to Desktop/projects on Windows.
 	if runtime.GOOS == "windows" {
 		desktop, err := shared.DesktopPath()
 		if err != nil {
 			return fmt.Errorf("config.createDefaultConfig: get Windows desktop path - %s", err.Error())
 		}
-		prjPath := path.Join(desktop, "projects")
-		defaultCfg.Set("workspace", filepath.FromSlash(prjPath))
+		prjPath := filepath.Join(desktop, "projects")
+		defaultCfg.Set("workspace", filepath.ToSlash(prjPath))
 
 		// Set default editor to VS Code if it exists.
 		defaultCfg.Set("editor", detectApp("code.exe"))
@@ -257,7 +257,7 @@ func detectApp(executable string) string {
 
 	for _, p := range paths {
 		if strings.Contains(strings.ToLower(p), strings.ToLower(executable)) {
-			return p
+			return filepath.ToSlash(p)
 		}
 	}
 	return ""
@@ -280,7 +280,7 @@ func parseStartMenu() (basePaths []string, err error) {
 	}
 	basePaths = append(basePaths, b1...)
 
-	// Create the location of user start menu.
+	// Get the location of user start menu.
 	// "homedir/AppData/Roaming/Microsoft/Windows/Start Menu/Programs"
 	home, _ := homedir.Dir()
 	startMenuUser := path.Join(home, "AppData/Roaming/Microsoft/Windows/Start Menu/Programs")
@@ -364,15 +364,8 @@ func Write(cfg ConfigMap) error {
 
 	switch runtime.GOOS {
 	case "windows":
-		// If on Windows, we need to replace \n with \r\n so notepad will show the
-		// files properly.
-		// var sb strings.Builder
-		// enc := json.NewEncoder(&sb)
-		// enc.SetIndent("", "\t")
-		// if err := enc.Encode(cfg); err != nil {
-		// 	return fmt.Errorf("config.Write: write config file - %s", err.Error())
-		// }
-
+		// If on Windows, we need to replace \n with \r\n so notepad will show
+		// the files properly.
 		cfgString, err := shared.StructToJSONString(cfg, true)
 		if err != nil {
 			return fmt.Errorf("config.Write: write config file - %s", err.Error())

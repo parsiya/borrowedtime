@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"path"
 	"path/filepath"
 
 	"github.com/parsiya/borrowedtime/shared"
@@ -21,7 +20,7 @@ func AddData(name, content string, overwrite bool) error {
 
 	// Add json extension.
 	name = shared.AddExtension(name, "json")
-	pa := path.Join(dataDir, name)
+	pa := filepath.Join(dataDir, name)
 	err := shared.WriteFileString(content, pa, true)
 	// Can replace with "return err" if we do not want the custom error message.
 	if err != nil {

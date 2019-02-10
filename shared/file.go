@@ -94,7 +94,7 @@ func DesktopPath() (string, error) {
 		return "", fmt.Errorf("shared.DesktopPath: not running Windows, running %s", runtime.GOOS)
 	}
 	home, err := HomeDir()
-	return path.Join(home, "Desktop"), err
+	return filepath.Join(home, "Desktop"), err
 }
 
 // DeletePath deletes a path and all its children from disk.
