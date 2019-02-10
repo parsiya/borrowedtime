@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -70,7 +69,7 @@ func projectPath(projectName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	projectPath := path.Join(workspace, projectName)
+	projectPath := filepath.Join(workspace, projectName)
 	return projectPath, nil
 }
 

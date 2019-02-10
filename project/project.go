@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -33,7 +32,7 @@ func New(name string) *Project {
 	return &Project{
 		ProjectName:     shared.EscapeString(name),
 		Workspace:       shared.EscapeString(cfg.Key("workspace")),
-		ProjectRoot:     shared.EscapeString(path.Join(cfg.Key("workspace"), name)),
+		ProjectRoot:     shared.EscapeString(filepath.Join(cfg.Key("workspace"), name)),
 		WorkspaceConfig: cfg,
 	}
 }
@@ -54,7 +53,7 @@ func (p *Project) Create(templateName string, overwrite bool) error {
 		return fmt.Errorf("project.Project.Create: %s", err.Error())
 	}
 	// Update project with newly created project config.
-	// Project config is at "projectRoot\\.config.json".
+	// Project config is at "projectRoot/.config.json".
 	configPath := filepath.Join(p.ProjectRoot, ".config.json")
 	cfgBytes, err := shared.ReadFileByte(configPath)
 	if err != nil {
@@ -139,7 +138,7 @@ func (n *Node) Create(p Project, overwrite bool) error {
 	}
 	// If node is a directory, create the directory. No need to create if it already exists.
 	if n.Info.IsDir && !exists {
-		if err := os.Mkdir(n.FullPath, os.ModePerm); err != nil {
+		if err := os.MkdirAll(n.FullPath, os.ModePerm); err != nil {
 			return err
 		}
 	}
