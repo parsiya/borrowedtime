@@ -91,6 +91,15 @@ const defaultProjectStructure = `
                 "template": ""
             },
             "children": []
+        },
+        {
+            "path": "{{ .Workspace }}/{{ .ProjectName }}/.gitignore",
+            "info": {
+                "name": ".gitignore",
+                "isdir": false,
+                "template": ""
+            },
+            "children": []
         }
     ]
 }`
