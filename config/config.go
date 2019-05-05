@@ -194,7 +194,7 @@ func BackupFiles() (fi []string, err error) {
 		return fi, fmt.Errorf("config.BackupFiles: %s", err.Error())
 	}
 	// List all files in the backup directory.
-	return shared.ListFiles(backupDir, "*.*")
+	return shared.ListFiles(backupDir, "*")
 }
 
 // CreateDefault creates the default config file and overwrites whatever
@@ -453,4 +453,9 @@ func Edit(editor string) error {
 	// handled the error (if any) in "ConfigFilePath()."
 	cfgDir, _ := configDir()
 	return shared.OpenWithEditor(editor, cfg, cfgDir)
+}
+
+// ConfigDir is the exported version of configDir.
+func ConfigDir() (string, error) {
+	return configDir()
 }

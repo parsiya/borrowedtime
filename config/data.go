@@ -36,7 +36,8 @@ func DataFiles() (fi []string, err error) {
 		return fi, fmt.Errorf("config.DataFiles: %s", err.Error())
 	}
 	// List all files in the data directory.
-	return shared.ListFiles(dataDir, "*.*")
+	// Previously we used "*.*" here which filtered files without extensions.
+	return shared.ListFiles(dataDir, "*")
 }
 
 // GetDataFile returns the contents of a data file using a path relative to the

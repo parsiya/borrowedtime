@@ -26,27 +26,20 @@ func DataCmd() prompter.Command {
 		Executor:    dataExecutor,
 	}
 
-	viewArgument := prompter.Argument{
-		Name:              "view",
-		Description:       "view data file",
-		ArgumentCompleter: viewDataCompleter,
-	}
-
 	addArgument := prompter.Argument{
 		Name:              "add",
 		Description:       "add data file",
 		ArgumentCompleter: addDataCompleter,
 	}
 
-	// Edit uses the same completer as view.
 	editArgument := prompter.Argument{
 		Name:              "edit",
 		Description:       "edit data file",
-		ArgumentCompleter: viewDataCompleter,
+		ArgumentCompleter: editDataCompleter,
 	}
 
 	// Add all arguments to the command.
-	dataCmd.AddArguments(viewArgument, addArgument, editArgument)
+	dataCmd.AddArguments(addArgument, editArgument)
 
 	dataCmd.AddSubCommands(listDataCmd)
 
@@ -109,14 +102,18 @@ func dataExecutor(args prompter.CmdArgs) (err error) {
 		if err != nil {
 			return err
 		}
-		return OpenWith(dataPath)
+		cfgDir, err := config.ConfigDir()
+		if err != nil {
+			return err
+		}
+		return OpenWith(dataPath, cfgDir)
 	}
 
 	return nil
 }
 
-// viewCompleter displays all data files for the "data view" command.
-func viewDataCompleter(_ string, _ []string) []prompt.Suggest {
+// editDataCompleter displays all data files for the "data edit" command.
+func editDataCompleter(_ string, _ []string) []prompt.Suggest {
 	// Create an empty list of suggestions.
 	sugs := []prompt.Suggest{}
 	// Get data files.
@@ -137,6 +134,6 @@ func viewDataCompleter(_ string, _ []string) []prompt.Suggest {
 // addCompleter displays a single suggestion for the add data option.
 func addDataCompleter(_ string, _ []string) []prompt.Suggest {
 	return []prompt.Suggest{
-		{Text: "data.json", Description: "path to data file"},
+		{Text: "data.json", Description: "path to the data file"},
 	}
 }

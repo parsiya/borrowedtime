@@ -120,7 +120,7 @@ func AddExtension(filename, ext string) string {
 
 // ListFiles returns all files with a specific pattern under a path. The path
 // is relative to root. Pattern is the typical "shell file name pattern"
-// (e.g. *.exe or *.* to list all files).
+// (e.g. *.exe or * to list all files).
 func ListFiles(root, pattern string) (files []string, err error) {
 	// Check if path exists.
 	exists, err := PathExists(root)

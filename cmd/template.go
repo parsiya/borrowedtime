@@ -21,17 +21,11 @@ func TemplateCmd() prompter.Command {
 	}
 
 	// SubCommands are normal commands. In this case we are creating an argument
-	// to add view as an option (but without the "-") instead of a subcommand.
+	// to add edit as an option (but without the "-") instead of a subcommand.
 	templateCmd := prompter.Command{
 		Name:        "template",
 		Description: "template configuration",
 		Executor:    templateExecutor,
-	}
-
-	viewArgument := prompter.Argument{
-		Name:              "view",
-		Description:       "view template",
-		ArgumentCompleter: viewTemplateCompleter,
 	}
 
 	addArgument := prompter.Argument{
@@ -40,13 +34,12 @@ func TemplateCmd() prompter.Command {
 		ArgumentCompleter: addTemplateCompleter,
 	}
 
-	// Edit uses the same completer as view.
 	editArgument := prompter.Argument{
 		Name:              "edit",
 		Description:       "edit template",
-		ArgumentCompleter: viewTemplateCompleter,
+		ArgumentCompleter: editTemplateCompleter,
 	}
-	templateCmd.AddArguments(viewArgument, addArgument, editArgument)
+	templateCmd.AddArguments(addArgument, editArgument)
 
 	templateCmd.AddSubCommands(listTemplateCmd)
 
@@ -121,13 +114,18 @@ func templateExecutor(args prompter.CmdArgs) (err error) {
 		if err != nil {
 			return err
 		}
-		return OpenWith(templateMap[tmpl])
+		// Get the config dir.
+		cfgDir, err := config.ConfigDir()
+		if err != nil {
+			return err
+		}
+		return OpenWith(templateMap[tmpl], cfgDir)
 	}
 	return nil
 }
 
-// viewTemplateCompleter displays all template files for the "template view" command.
-func viewTemplateCompleter(_ string, _ []string) []prompt.Suggest {
+// editTemplateCompleter displays all template files for "template edit".
+func editTemplateCompleter(_ string, _ []string) []prompt.Suggest {
 	// Create an empty list of suggestions.
 	sugs := []prompt.Suggest{}
 	// Get template map.
@@ -148,6 +146,6 @@ func viewTemplateCompleter(_ string, _ []string) []prompt.Suggest {
 // addTemplateCompleter displays a single suggestion for the add template option.
 func addTemplateCompleter(_ string, _ []string) []prompt.Suggest {
 	return []prompt.Suggest{
-		{Text: "sample.json", Description: "path to template file"},
+		{Text: "sample.json", Description: "path to the template file"},
 	}
 }

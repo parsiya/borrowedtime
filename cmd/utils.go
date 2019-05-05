@@ -43,15 +43,15 @@ func TopDirs(root string) (dirs [][]string, err error) {
 	return dirs, nil
 }
 
-// OpenWith opens the file or directory with the editor specified in the config.
-func OpenWith(filename string) error {
+// OpenWith opens paths with the editor specified in the config.
+func OpenWith(paths ...string) error {
 	// Get the config.
 	cfg, err := config.Read()
 	if err != nil {
 		return err
 	}
-	// Open the path.
-	return shared.OpenWithEditor(cfg.Key("editor"), filename)
+	// Open the paths.
+	return shared.OpenWithEditor(cfg.Key("editor"), paths...)
 }
 
 // OpenProject opens projectName using the editor specified in the config file.
