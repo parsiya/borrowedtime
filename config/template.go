@@ -91,7 +91,7 @@ func AddTemplate(name, content string, overwrite bool) error {
 // listTemplateFiles creates a list of all files regardless of hierarchy under a
 // location and returns a []Template.
 func listTemplateFiles(root string) (index []Template, err error) {
-	files, err := shared.ListFiles(root, "*.*")
+	files, err := shared.ListFiles(root, "*")
 	if err != nil {
 		return index, fmt.Errorf("config.listTemplates: %s", err.Error())
 	}
