@@ -442,11 +442,15 @@ func ConfigFilePath() (string, error) {
 	return path.Join(configDir, defaultWorkspaceConfigFilename), nil
 }
 
-// Edit attempts to open the config file with editor.
+// Edit attempts to open the config file and the borrowed time directory with
+// editor.
 func Edit(editor string) error {
 	cfg, err := ConfigFilePath()
 	if err != nil {
 		return fmt.Errorf("config.Edit: %s", err.Error())
 	}
-	return shared.OpenWithEditor(editor, cfg)
+	// We can ignore the error here because we have already called this and
+	// handled the error (if any) in "ConfigFilePath()."
+	cfgDir, _ := configDir()
+	return shared.OpenWithEditor(editor, cfg, cfgDir)
 }
