@@ -88,7 +88,6 @@ func genTemplate(p Project, tmplName string) (string, error) {
 		return "", err
 	}
 	// Read the template and execute it.
-	// tmpl, err := template.New(tmplName).ParseFiles(pth)
 	tmpl, err := template.New(tmplName).Parse(tmplStr)
 	if err != nil {
 		return "", fmt.Errorf("project.genTemplate: create new template - %s", err.Error())
@@ -96,7 +95,6 @@ func genTemplate(p Project, tmplName string) (string, error) {
 
 	var tplResult strings.Builder
 	// fmt.Println("-----------------")
-	// fmt.Println(shared.StructToJSONString(tmpl, true))
 	if err := tmpl.Execute(&tplResult, p); err != nil {
 		return "", fmt.Errorf("project.genTemplate: execute template - %s", err.Error())
 	}
@@ -142,8 +140,7 @@ func (n *Node) Create(p Project, overwrite bool) error {
 			return err
 		}
 	}
-	// If file, create the file. Cannot do else here otherwise directories that
-	// exist land here.
+	// If file, create the file.
 	if !n.Info.IsDir {
 		// Node is a file, create the file.
 		f, err := os.Create(n.FullPath)

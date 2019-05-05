@@ -1,12 +1,12 @@
 package project
 
-// This is modified from https://github.com/marcinwyszynski/directory_tree by
-// Marcin Wyszynski licensed under MIT.
-
 import (
 	"os"
 	"path/filepath"
 )
+
+// This is modified from https://github.com/marcinwyszynski/directory_tree by
+// Marcin Wyszynski licensed under MIT.
 
 // FileInfo is a struct created from os.FileInfo interface for serialization.
 type FileInfo struct {

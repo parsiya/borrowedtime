@@ -24,6 +24,7 @@ var defaultTemplates = map[string]string{
 	"creds.json":             defaultCredsTemplate,
 	"project-config.json":    defaultProjectConfig,
 	"project-structure.json": defaultProjectStructure,
+	"todo.json":              defaultTODOTemplate,
 }
 
 // Start menu path

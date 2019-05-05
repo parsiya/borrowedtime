@@ -147,7 +147,6 @@ Project templates are JSON files in the following structure. They use the Go
 {
     "path": "{{ .Workspace }}/{{ .ProjectName }}",
     "info": {
-        "name": "{{ .ProjectName }}",
         "isdir": true,
         "template": ""
     },
@@ -155,7 +154,6 @@ Project templates are JSON files in the following structure. They use the Go
         {
             "path": "{{ .Workspace }}/{{ .ProjectName }}/.config.json",
             "info": {
-                "name": ".config.json",
                 "isdir": false,
                 "template": "project-config"
             },
@@ -164,7 +162,6 @@ Project templates are JSON files in the following structure. They use the Go
         {
             "path": "{{ .Workspace }}/{{ .ProjectName }}/@notes.md",
             "info": {
-                "name": "@notes.md",
                 "isdir": false,
                 "template": "notes"
             },
@@ -173,7 +170,6 @@ Project templates are JSON files in the following structure. They use the Go
         {
             "path": "{{ .Workspace }}/{{ .ProjectName }}/@pix",
             "info": {
-                "name": "@pix",
                 "isdir": true,
                 "template": ""
             },
