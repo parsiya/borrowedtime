@@ -2,6 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
+	"github.com/parsiya/borrowedtime/shared"
 
 	prompt "github.com/c-bata/go-prompt"
 	"github.com/parsiya/borrowedtime/config"
@@ -98,6 +101,20 @@ func listProjectExecutor(args prompter.CmdArgs) error {
 	if err != nil {
 		return err
 	}
+
+	// If workspace path does not exist, create it. This issue only happens
+	// when we call `project list` right after deploy. Issue #3.
+	exists, err := shared.PathExists(workspace)
+	if err != nil {
+		return err
+	}
+	// If workspace does not exist then create it.
+	if !exists {
+		if err := os.MkdirAll(workspace, os.ModePerm); err != nil {
+			return err
+		}
+	}
+
 	dirs, err := TopDirs(workspace)
 	if err != nil {
 		return err

@@ -114,7 +114,7 @@ func resetCompleter(optName string, _ []string) []prompt.Suggest {
 // templateExecutor restores a backup and secretly creates one.
 func configExecutor(args prompter.CmdArgs) error {
 	fmt.Println("inside templateExecutor")
-	fmt.Printf("deploy args: %v\n", args)
+	fmt.Printf("config args: %v\n", args)
 
 	if args.Contains("restore") {
 		restoreFile, err := args.GetFirstValue("restore")
@@ -153,7 +153,7 @@ func restoreCompleter(_ string, _ []string) []prompt.Suggest {
 // editConfigExecutor opens the config file with the workspace editor.
 func editConfigExecutor(args prompter.CmdArgs) error {
 	fmt.Println("inside editConfigExecutor")
-	fmt.Printf("deploy args: %v\n", args)
+	fmt.Printf("config args: %v\n", args)
 
 	// Open config file with default editor.
 	cfg, err := config.Read()
@@ -171,7 +171,7 @@ func editConfigExecutor(args prompter.CmdArgs) error {
 // viewConfigExecutor prints the config file to console.
 func viewConfigExecutor(args prompter.CmdArgs) error {
 	fmt.Println("inside viewConfigExecutor")
-	fmt.Printf("deploy args: %v\n", args)
+	fmt.Printf("config args: %v\n", args)
 
 	cfg, err := config.Read()
 	if err != nil {
