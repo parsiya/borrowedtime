@@ -14,7 +14,7 @@ import (
 	"github.com/mholt/archiver"
 	"github.com/mitchellh/go-homedir"
 	"github.com/parsiya/borrowedtime/shared"
-	"github.com/parsiya/golnk"
+	lnk "github.com/parsiya/golnk"
 )
 
 // initiateConfig creates the homedir/borrowedtime directory and copies the config
@@ -45,7 +45,8 @@ func initiateConfig(overwrite bool) error {
 	if err != nil {
 		return fmt.Errorf("config.initiateConfig: %s", err.Error())
 	}
-	// If exists, return an error because we do not want extra inits to overwrite everything.
+	// If exists, return an error because we do not want extra inits to
+	// overwrite everything.
 	if exists && !overwrite {
 		return fmt.Errorf("config.initiateConfig: config already exists, use \"config reset\"")
 	}
@@ -240,7 +241,11 @@ func createDefaultConfig() error {
 		return fmt.Errorf("config.createDefaultConfig: %s", err.Error())
 	}
 
-	return shared.OpenWithDefaultEditor(cfgPath)
+	// Open the config file with the default editor.
+	if err := shared.OpenWithDefaultEditor(cfgPath); err != nil {
+		return fmt.Errorf("config.createDefaultConfig: open config with default editor - %s", err.Error())
+	}
+	return nil
 }
 
 // detectApp parses the start menu, looks for an executable name
