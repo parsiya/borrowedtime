@@ -133,6 +133,10 @@ directories). The path to the project is passed to the editor as an argument.
 
 ![project open](.github/project-open.gif)
 
+Use quotes to create projects with spaces (I personally do not):
+
+* `project create -name "project name with spaces"`
+
 ## Templates
 Borrowed Time can customize project structure and generated files with templates.
 
@@ -179,7 +183,8 @@ Project templates are JSON files in the following structure. They use the Go
 }
 ```
 
-As you can see, each file can have its own individual template.
+As you can see, each file can have its own individual template (see below for
+file templates). The value of `template` is ignored for directories.
 
 ### File Templates
 File templates are text files. They can contain similar placeholders based on
@@ -202,7 +207,8 @@ inside the `templates` directory in different sub-directories.
 
 The template is addressed by the name of the file containing it without the
 extension. As a matter of convenience, all templates get the extension json
-although file templates are just plain text files.
+although file templates are usually plain text files. This should be changed,
+see [issue #6](https://github.com/parsiya/borrowedtime/issues/6).
 
 ### Custom Fields in File Templates
 It's possible to add custom items to the configuration file and use them in
@@ -219,7 +225,8 @@ the configuration file.
 Personally, I am very proud of how this part turned out.
 
 ## License
-Opensourced under the Apache License v 2.0 license. See [LICENSE](LICENSE) for details.
+Opensourced under the Apache License v 2.0 license. See [LICENSE](LICENSE) for
+details.
 
 ## TODO:
 See Github issues for more.
