@@ -26,7 +26,7 @@ type Node struct {
 	FullPath string    `json:"path"`
 	Info     *FileInfo `json:"info"`
 	Children []*Node   `json:"children"`
-	Parent   *Node     `json:"-"`
+	Parent   *Node     `json:"-"` // We are not currently using this.
 }
 
 // NewTree creates the directory hierarchy.
