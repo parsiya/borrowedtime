@@ -137,6 +137,10 @@ Use quotes to create projects with spaces (I personally do not):
 
 * `project create -name "project name with spaces"`
 
+Do not use quotes for projects without spaces:
+
+* Do not use `project create -name "test1"`.
+
 ## Templates
 Borrowed Time can customize project structure and generated files with templates.
 
@@ -147,6 +151,9 @@ Project templates are JSON files in the following structure. They use the Go
 * `Workspace` points to the root of your workspace.
 * `ProjectName` is the name of the directory.
 
+Note the children's path is relative to their parent. The tool is not looking
+for full paths for children.
+
 ``` json
 {
     "path": "{{ .Workspace }}/{{ .ProjectName }}",
@@ -156,7 +163,7 @@ Project templates are JSON files in the following structure. They use the Go
     },
     "children": [
         {
-            "path": "{{ .Workspace }}/{{ .ProjectName }}/.config.json",
+            "path": ".config.json",
             "info": {
                 "isdir": false,
                 "template": "project-config"
@@ -164,7 +171,7 @@ Project templates are JSON files in the following structure. They use the Go
             "children": []
         },
         {
-            "path": "{{ .Workspace }}/{{ .ProjectName }}/@notes.md",
+            "path": "@notes.md",
             "info": {
                 "isdir": false,
                 "template": "notes"
@@ -172,7 +179,7 @@ Project templates are JSON files in the following structure. They use the Go
             "children": []
         },
         {
-            "path": "{{ .Workspace }}/{{ .ProjectName }}/@pix",
+            "path": "@pix",
             "info": {
                 "isdir": true,
                 "template": ""
@@ -207,7 +214,7 @@ inside the `templates` directory in different sub-directories.
 
 The template is addressed by the name of the file containing it without the
 extension. As a matter of convenience, all templates get the extension json
-although file templates are usually plain text files. This should be changed,
+although file templates are usually plaintext files. This should be changed,
 see [issue #6](https://github.com/parsiya/borrowedtime/issues/6).
 
 ### Custom Fields in File Templates
@@ -229,15 +236,15 @@ Opensourced under the Apache License v 2.0 license. See [LICENSE](LICENSE) for
 details.
 
 ## TODO:
-See Github issues for more.
+Now in Github issues.
 
-1. Change error message in all unexported functions and remove module name.
-   Only leave the error message?
+1. ~~Change error message in all unexported functions and remove module name.
+   Only leave the error message?~~ [Issue #12](https://github.com/parsiya/borrowedtime/issues/12).
 2. ~~Add `edit` command to template and data files.~~
 3. ~~Update docs after `prompter` is released.~~
 4. ~~Create gifs of some commands.~~
 5. ~~Explain all commands.~~
-6. Add generation of Burp project based on a base Burp configuration file.
-    * Research and add custom generation of Burp config files based on project
-      using name, credentials, etc.
+6. ~~Add generation of Burp project based on a base Burp configuration file.~~ [Issue #13](https://github.com/parsiya/borrowedtime/issues/13)
+    * ~~Research and add custom generation of Burp config files based on project
+      using name, credentials, etc.~~
 7. ~~Add `dep` support.~~

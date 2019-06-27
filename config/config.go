@@ -23,7 +23,6 @@ import (
 // TODO: Editor detection, detect some popular editors and create commented
 // entries for them in the config file. ~~Needs lnk parser.~~ Lnk parser is done,
 // need some popular editors.
-// TODO: Add logging. E.g. creating file X.
 func initiateConfig(overwrite bool) error {
 	// Delete templates directory and config.json.
 	if overwrite {
