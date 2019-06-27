@@ -39,17 +39,22 @@ func ProjectCmd() prompter.Command {
 		Description: "create a new project in the workspace",
 		Executor:    createProjectExecutor,
 	}
-	nameArgument := prompter.Argument{
-		Name:              "-name",
-		Description:       "unique name of the new project",
-		ArgumentCompleter: createProjectCompleter,
-	}
 	templateArgument := prompter.Argument{
 		Name:              "-template",
 		Description:       "(optional) project template name",
+		ArgumentCompleter: templateCompleter,
+	}
+	overwriteArgument := prompter.Argument{
+		Name:        "-overwrite",
+		Description: "(optional) overwrite flag",
+	}
+	// Hacky way to display a suggestion for project name.
+	emptyArgument := prompter.Argument{
+		Name:              " ",
+		Description:       "project name - use \" for names with spaces",
 		ArgumentCompleter: createProjectCompleter,
 	}
-	createProjectsCmd.AddArguments(nameArgument, templateArgument)
+	createProjectsCmd.AddArguments(templateArgument, overwriteArgument, emptyArgument)
 
 	projectCmd.AddSubCommands(listProjectsCmd, createProjectsCmd)
 	return projectCmd
@@ -123,15 +128,11 @@ func listProjectExecutor(args prompter.CmdArgs) error {
 	return nil
 }
 
-// createProjectCompleter shows sample suggestions for the create project command.
-func createProjectCompleter(optName string, _ []string) []prompt.Suggest {
+// templateCompleter shows sample suggestions for the create project template arg.
+func templateCompleter(optName string, _ []string) []prompt.Suggest {
 	// Create an empty list of suggestions.
 	sugs := []prompt.Suggest{}
 	switch optName {
-	case "-name":
-		sugs = append(sugs,
-			prompt.Suggest{Text: "", Description: "should be unique"})
-		return sugs
 	case "-template":
 		// Show all templates. The list will have non-project templates, but we
 		// can delegate that responsibility to the user.
@@ -153,6 +154,16 @@ func createProjectCompleter(optName string, _ []string) []prompt.Suggest {
 	return sugs
 }
 
+// createProjectCompleter shows sample suggestions for the create project command.
+func createProjectCompleter(optName string, _ []string) []prompt.Suggest {
+	return []prompt.Suggest{
+		prompt.Suggest{
+			Text:        "project name",
+			Description: "Must be unique, use\" for project names with space.",
+		},
+	}
+}
+
 // createProjectExecutor is the executor for the project command. Creates a new
 // project name with using an optional template.
 func createProjectExecutor(args prompter.CmdArgs) (err error) {
@@ -167,13 +178,18 @@ func createProjectExecutor(args prompter.CmdArgs) (err error) {
 
 	projectName := ""
 	templateName := ""
+	// Overwrite is false by default.
+	overwrite := false
 
-	if args.Contains("-name") {
-		projectName, err = args.GetFirstValue("-name")
+	// Read the project name as the first argument after "create."
+	// Because there is no parameter, it's passed to _.
+	if args.Contains("_") {
+		projectName, err = args.GetFirstValue("_")
 		if err != nil {
 			return err
 		}
 	} else {
+		fmt.Printf("%+v\n", args)
 		return fmt.Errorf("please provide project name")
 	}
 
@@ -184,14 +200,18 @@ func createProjectExecutor(args prompter.CmdArgs) (err error) {
 		}
 	} else {
 		// If not provided, use the default project structure in the config.
-		// Check if the config has the
+		// TODO: Check if the config has the default project? #Issue-16
 		templateName = cfg.Key("projectstructure")
+	}
+
+	// If overwrite is provided, set it to true.
+	if args.Contains("-overwrite") {
+		overwrite = true
 	}
 
 	// Create project.
 	prj := project.New(projectName)
-	// Do not overwrite by default.
-	err = prj.Create(templateName, false)
+	err = prj.Create(templateName, overwrite)
 	if err != nil {
 		return err
 	}
