@@ -11,7 +11,7 @@ const defaultProjectStructure = `
     },
     "children": [
         {
-            "path": "{{ .Workspace }}/{{ .ProjectName }}/.config.json",
+            "path": ".config.json",
             "info": {
                 "isdir": false,
                 "template": "project-config"
@@ -19,7 +19,7 @@ const defaultProjectStructure = `
             "children": []
         },
         {
-            "path": "{{ .Workspace }}/{{ .ProjectName }}/@notes.md",
+            "path": "@notes.md",
             "info": {
                 "isdir": false,
                 "template": "notes"
@@ -27,7 +27,7 @@ const defaultProjectStructure = `
             "children": []
         },
         {
-            "path": "{{ .Workspace }}/{{ .ProjectName }}/@findings.md",
+            "path": "@findings.md",
             "info": {
                 "isdir": false,
                 "template": ""
@@ -35,7 +35,7 @@ const defaultProjectStructure = `
             "children": []
         },
         {
-            "path": "{{ .Workspace }}/{{ .ProjectName }}/@creds.md",
+            "path": "@creds.md",
             "info": {
                 "isdir": false,
                 "template": "creds"
@@ -43,7 +43,7 @@ const defaultProjectStructure = `
             "children": []
         },
         {
-            "path": "{{ .Workspace }}/{{ .ProjectName }}/@pix",
+            "path": "@pix",
             "info": {
                 "isdir": true,
                 "template": ""
@@ -51,7 +51,24 @@ const defaultProjectStructure = `
             "children": []
         },
         {
-            "path": "{{ .Workspace }}/{{ .ProjectName }}/@report",
+            "path": "@report",
+            "info": {
+                "isdir": true,
+                "template": ""
+            },
+            "children": [
+                {
+                    "path": "report.json",
+                    "info": {
+                        "isdir": false,
+                        "template": "report"
+                    },
+                    "children": []
+                }
+            ]
+        },
+        {
+            "path": "@clientFiles",
             "info": {
                 "isdir": true,
                 "template": ""
@@ -59,31 +76,15 @@ const defaultProjectStructure = `
             "children": []
         },
         {
-            "path": "{{ .Workspace }}/{{ .ProjectName }}/@Report/report.json",
+            "path": "@TODO.md",
             "info": {
                 "isdir": false,
-                "template": "report"
-            },
-            "children": []
-        },
-        {
-            "path": "{{ .Workspace }}/{{ .ProjectName }}/@clientFiles",
-            "info": {
-                "isdir": true,
                 "template": ""
             },
             "children": []
         },
         {
-            "path": "{{ .Workspace }}/{{ .ProjectName }}/@TODO.md",
-            "info": {
-                "isdir": false,
-                "template": ""
-            },
-            "children": []
-        },
-        {
-            "path": "{{ .Workspace }}/{{ .ProjectName }}/.gitignore",
+            "path": ".gitignore",
             "info": {
                 "isdir": false,
                 "template": ""

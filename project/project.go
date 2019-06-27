@@ -57,7 +57,11 @@ func (p *Project) Create(templateName string, overwrite bool) error {
 	configPath := filepath.Join(p.ProjectRoot, ".config.json")
 	cfgBytes, err := shared.ReadFileByte(configPath)
 	if err != nil {
-		return fmt.Errorf("project.Project.Create: read project config - %s", err.Error())
+		// If there is no project config in the template, this will return an
+		// error. Print an error and return instead.
+		fmt.Printf("project.Project.Create: read project config - %s", err.Error())
+		return nil
+		// return fmt.Errorf("project.Project.Create: read project config - %s", err.Error())
 	}
 	err = json.Unmarshal(cfgBytes, &p.ProjectConfig)
 	if err != nil {
@@ -163,6 +167,13 @@ func (n *Node) Create(p Project, overwrite bool) error {
 	}
 	// Create all node's children.
 	for _, child := range n.Children {
+		// Calculate and populate FullPath based on the parent. Everything but
+		// root should have a parent and if we are here, then we are not
+		// populating root.
+		fmt.Printf("processing child.FullPath: %s\n", child.FullPath)
+		fmt.Printf("Parent's FullPath is %v\n", n.FullPath)
+		fmt.Printf("joined: %s\n", filepath.Join(n.FullPath, child.FullPath))
+		child.FullPath = filepath.Join(n.FullPath, child.FullPath)
 		if err := child.Create(p, overwrite); err != nil {
 			return err
 		}
