@@ -126,20 +126,30 @@ template file. See `Project Templates` below.
 ![project list](.github/project.png)
 
 `create` creates a new project inside the `workspace` with an optional file
-containing the project structure. Then opens the project.
+containing the project structure and overwrite (false by default). Then opens
+the project. First value after `create` is the project name.
+
+Examples:
+
+* `project create test1` - Create a new project named `test1`.
+* `project create test1 -template template1` - Create a new project named `test1` using `template1.json`.
+* `project create test1 -template template1 -overwrite` - Create a new project named `test1` using `template1.json` and overwrite any existing projects.
+
+Note: `overwrite` does not delete the previous project directory. Existing files
+that are not in the new template are not touched. Only files that are in both
+templates are overwritten.
+
+Note about project names with spaces:
+
+* Use quotes to create projects with spaces (I personally do not):
+    * `project create "project name with spaces"`
+* Do not use quotes for projects without spaces:
+    * Do not use `project create "test1"`.
 
 `open` opens a project with the editor (if the editor supports opening
 directories). The path to the project is passed to the editor as an argument.
 
 ![project open](.github/project-open.gif)
-
-Use quotes to create projects with spaces (I personally do not):
-
-* `project create -name "project name with spaces"`
-
-Do not use quotes for projects without spaces:
-
-* Do not use `project create -name "test1"`.
 
 ## Templates
 Borrowed Time can customize project structure and generated files with templates.
