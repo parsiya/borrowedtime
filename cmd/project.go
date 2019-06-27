@@ -190,7 +190,7 @@ func createProjectExecutor(args prompter.CmdArgs) (err error) {
 		}
 	} else {
 		fmt.Printf("%+v\n", args)
-		return fmt.Errorf("please provide project name")
+		return fmt.Errorf("project.createProjectExecutor: please provide project name")
 	}
 
 	if args.Contains("-template") {
@@ -200,8 +200,13 @@ func createProjectExecutor(args prompter.CmdArgs) (err error) {
 		}
 	} else {
 		// If not provided, use the default project structure in the config.
-		// TODO: Check if the config has the default project? #Issue-16
 		templateName = cfg.Key("projectstructure")
+		// If projectstructure is not in the config file, issue#16.
+		if templateName == "" {
+			return fmt.Errorf("project.createProjectExecutor: No " +
+				"projectstructure exists in the config file, either add one or" +
+				"provide a template to project create")
+		}
 	}
 
 	// If overwrite is provided, set it to true.
