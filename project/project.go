@@ -170,9 +170,11 @@ func (n *Node) Create(p Project, overwrite bool) error {
 		// Calculate and populate FullPath based on the parent. Everything but
 		// root should have a parent and if we are here, then we are not
 		// populating root.
-		fmt.Printf("processing child.FullPath: %s\n", child.FullPath)
-		fmt.Printf("Parent's FullPath is %v\n", n.FullPath)
-		fmt.Printf("joined: %s\n", filepath.Join(n.FullPath, child.FullPath))
+		// fmt.Printf("processing child.FullPath: %s\n", child.FullPath)
+		// fmt.Printf("Parent's FullPath is %v\n", n.FullPath)
+		// fmt.Printf("joined: %s\n", filepath.Join(n.FullPath, child.FullPath))
+		// This is a good place to place logging statements.
+		// E.g., creating blahblah/whatever.txt using X template.
 		child.FullPath = filepath.Join(n.FullPath, child.FullPath)
 		if err := child.Create(p, overwrite); err != nil {
 			return err

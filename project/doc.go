@@ -15,11 +15,6 @@
 										Later it can be used to generate a Burp file.
 		@Credz.md <-- Credentials file.
 		@TODO.md <-- TODO file.
-
-
-	TODO:
-	1. ~~Find a way to pass project info to the templates to create them? Maybe get it from path?~~ Done
-	2.
 */
 
 package project

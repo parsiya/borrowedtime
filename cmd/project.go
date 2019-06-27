@@ -191,7 +191,6 @@ func createProjectExecutor(args prompter.CmdArgs) (err error) {
 	// Create project.
 	prj := project.New(projectName)
 	// Do not overwrite by default.
-	// TODO: We can add an overwrite flag here but I want to keep it simple.
 	err = prj.Create(templateName, false)
 	if err != nil {
 		return err
