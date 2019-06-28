@@ -13,14 +13,11 @@ func main() {
 
 	configCmd := cmd.ConfigCmd()
 	deployCmd := cmd.DeployCmd()
-	templateCmd := cmd.TemplateCmd()
-	dataCmd := cmd.DataCmd()
 	projectCmd := cmd.ProjectCmd()
-
 	exitCmd := cmd.ExitCmd()
 
 	comp := prompter.NewCompleter()
-	err := comp.RegisterCommands(configCmd, deployCmd, templateCmd, dataCmd, projectCmd, exitCmd)
+	err := comp.RegisterCommands(configCmd, deployCmd, projectCmd, exitCmd)
 	if err != nil {
 		panic(err)
 	}
