@@ -20,7 +20,7 @@ Note: Borrowed Time is under heavy development. The API of sub-packages and
       recompile the app. See below for details.
 * Use your favorite editor.
 * Automatic editor detection on Windows.
-* Add/remove/edit data files and project/file templates.
+* Add/remove/edit project/data/file templates.
 
 ![main command](.github/maincmd.png)
 
@@ -100,20 +100,15 @@ The `config` subcommand is used to manipulate the configuration. For example,
 
 ![config command](.github/configcmd.png)
 
-* `backup` stores the config file and `data templates` directories in a zip
+* `backup` stores the config file and `data/templates` directories in a zip
     file under backup. The default name is based on the system's timestamp but
     it can be modified. You cannot overwrite backup files.
 * `restore` silently creates a backup and then overwrites the config file,
-    and `data templates` directories.
+    and `data/templates` directories.
+* `edit` opens the configuration directory. This can be used to edit the
+   configuration file or data/templates.
 
 ![backup and restore commands](.github/backup-restore.gif)
-
-### template/data
-`template` and `data` commands are similar. They work with data and template
-files. Borrowed Time templates are powerful, please see the `Templates` section
-below for more information.
-
-![template command](.github/template.png)
 
 ### project
 `project` command creates and edits projects created inside the `workspace`
@@ -152,7 +147,9 @@ directories). The path to the project is passed to the editor as an argument.
 ![project open](.github/project-open.gif)
 
 ## Templates
-Borrowed Time can customize project structure and generated files with templates.
+Borrowed Time can customize project structure and generated files with
+templates. To edit templates use the `config edit` command to open the config
+directory in the default editor.
 
 ### Project Templates
 Project templates are JSON files in the following structure. They use the Go
@@ -240,6 +237,12 @@ the configuration file.
    configuration file.
 
 Personally, I am very proud of how this part turned out.
+
+## Data Files
+Data files are located in the `data` directory and are free-format. They can be
+used to incorporate data into your templates. To edit the data files, run
+`config edit` to open the configuration directory in your editor.There used to
+be a `data` command but it has been removed.
 
 ## License
 Opensourced under the Apache License v 2.0 license. See [LICENSE](LICENSE) for

@@ -42,14 +42,6 @@ func ConfigCmd() prompter.Command {
 		Executor:    editConfigExecutor,
 	}
 
-	viewConfigCmd := prompter.Command{
-		Name:        "view",
-		Description: "view contents of configuration file",
-		Executor:    viewConfigExecutor,
-	}
-
-	// SubCommands are normal commands. In this case we are creating an argument
-	// to add view as an option (but without the "-") instead of a subcommand.
 	configCmd := prompter.Command{
 		Name:        "config",
 		Description: "configure workspace",
@@ -60,7 +52,7 @@ func ConfigCmd() prompter.Command {
 		Description:       "restore configuration and templates",
 		ArgumentCompleter: restoreCompleter,
 	})
-	configCmd.AddSubCommands(resetCmd, backupCmd, editConfigCmd, viewConfigCmd)
+	configCmd.AddSubCommands(resetCmd, backupCmd, editConfigCmd)
 
 	return configCmd
 }
@@ -166,22 +158,4 @@ func editConfigExecutor(args prompter.CmdArgs) error {
 	// 	return fmt.Errorf("editor is not set in config, use Deploy")
 	// }
 	return config.Edit(cfg.Key("editor"))
-}
-
-// viewConfigExecutor prints the config file to console.
-func viewConfigExecutor(args prompter.CmdArgs) error {
-	fmt.Println("inside viewConfigExecutor")
-	fmt.Printf("config args: %v\n", args)
-
-	cfg, err := config.Read()
-	if err != nil {
-		return err
-	}
-
-	data := [][]string{}
-	for k, v := range cfg {
-		data = append(data, []string{k, v})
-	}
-	fmt.Println(Table(data, false))
-	return nil
 }

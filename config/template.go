@@ -56,8 +56,8 @@ func makeTemplateMap() (map[string]string, error) {
 	return mp, nil
 }
 
-// AddTemplate adds a new template to the root of templates directory.
-func AddTemplate(name, content string, overwrite bool) error {
+// addTemplate adds a new template to the root of templates directory.
+func addTemplate(name, content string, overwrite bool) error {
 	// Get Base.
 	name = filepath.Base(name)
 	// Remove extension from template name if any.

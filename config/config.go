@@ -68,7 +68,7 @@ func initiateConfig(overwrite bool) error {
 	// Copy default templates and configurations to populate templates.
 	// Add everything from defaultTemplates map.
 	for name, content := range defaultTemplates {
-		err = AddTemplate(name, content, true)
+		err = addTemplate(name, content, true)
 		if err != nil {
 			return fmt.Errorf("config.initiateConfig: add template %s - %s", name, err.Error())
 		}
@@ -80,13 +80,6 @@ func initiateConfig(overwrite bool) error {
 	if err != nil {
 		return fmt.Errorf("config.initiateConfig: create data directory - %s", err.Error())
 	}
-
-	// for name, content := range defaultData {
-	// 	err = AddData(name, content, true)
-	// 	if err != nil {
-	// 		return fmt.Errorf("config.initiateConfig: add data %s - %s", name, err.Error())
-	// 	}
-	// }
 
 	// This needs to be done after template and data file creation so we can add
 	// them to the config file.
@@ -405,12 +398,12 @@ func backupDir() (string, error) {
 	return path.Join(configDir, "backups"), nil
 }
 
-// dataDir returns the data directory.
+// DataDir returns the data directory.
 // "homedir/borrowedtime/data" or "ConfigDir/data"
 func dataDir() (string, error) {
 	configDir, err := configDir()
 	if err != nil {
-		return "", fmt.Errorf("config.dataDir: %s", err.Error())
+		return "", fmt.Errorf("config.DataDir: %s", err.Error())
 	}
 	return path.Join(configDir, "data"), nil
 }
