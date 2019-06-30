@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 	"runtime"
 
@@ -43,7 +42,7 @@ func ReadFileString(filename string) (string, error) {
 
 // WriteFile writes the contents of the input to the file.
 // File will be overwritten if overwrite is set to true.
-func WriteFile(input []byte, file string, overwrite bool) error {
+func WriteFile(file string, input []byte, overwrite bool) error {
 	exists, err := PathExists(file)
 	// Check access.
 	if err != nil {
@@ -73,8 +72,8 @@ func WriteFile(input []byte, file string, overwrite bool) error {
 
 // WriteFileString does the same thing that WriteFile does with a string input.
 // I could copy WriteFile and use f.WriteString but this looks cleaner.
-func WriteFileString(input string, file string, overwrite bool) error {
-	return WriteFile([]byte(input), file, overwrite)
+func WriteFileString(file, content string, overwrite bool) error {
+	return WriteFile(file, []byte(content), overwrite)
 }
 
 // HomeDir calls homedir.Dir() but changes the backslashes with forwardslashes
@@ -104,7 +103,7 @@ func DeletePath(pathname string) error {
 
 // RemoveExtension removes the extension from a filename.
 func RemoveExtension(filename string) string {
-	ext := path.Ext(filename)
+	ext := filepath.Ext(filename)
 	return filename[:len(filename)-len(ext)]
 }
 

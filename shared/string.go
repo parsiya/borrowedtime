@@ -1,6 +1,8 @@
 package shared
 
-import "strings"
+import (
+	"strings"
+)
 
 // String utils.
 

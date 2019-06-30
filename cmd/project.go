@@ -134,20 +134,22 @@ func templateCompleter(optName string, _ []string) []prompt.Suggest {
 	sugs := []prompt.Suggest{}
 	switch optName {
 	case "-template":
-		// Show all templates. The list will have non-project templates, but we
-		// can delegate that responsibility to the user.
+		// Show all project templates.
 
-		// Taken from viewTemplateCompleter in template.go.
-		// Get template map.
-		templateMap, sortedNames, err := config.Templates()
+		// Get all project templates.
+		prjTmpls, err := config.ProjectTemplates()
 		if err != nil {
+			fmt.Println(err)
 			return sugs
 		}
+		// Get the sorted names.
+		sortedNames := shared.SortedKeys(prjTmpls)
+
 		// Add template names in alphabetical order to suggestions.
 		for _, name := range sortedNames {
 			sugs = append(sugs, prompt.Suggest{
 				Text:        name,
-				Description: templateMap[name],
+				Description: prjTmpls[name],
 			})
 		}
 	}

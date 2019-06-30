@@ -17,24 +17,18 @@ import (
 	lnk "github.com/parsiya/golnk"
 )
 
-// initiateConfig creates the homedir/borrowedtime directory and copies the config
-// files. Next it opens the config file with notepad.exe on Windows.
+// initiateConfig creates the homedir/borrowedtime directory and copies the
+// configfiles. Next it opens the config file with notepad.exe on Windows.
 // TODO: Add default editors for other OS.
 // TODO: Editor detection, detect some popular editors and create commented
 // entries for them in the config file. ~~Needs lnk parser.~~ Lnk parser is done,
 // need some popular editors.
 func initiateConfig(overwrite bool) error {
-	// Delete templates directory and config.json.
+	// Delete config.json.
 	if overwrite {
 		// Delete config file.
 		cfgFile, _ := ConfigFilePath()
 		err := shared.DeletePath(cfgFile)
-		if err != nil {
-			return fmt.Errorf("config.initiateConfig: %s", err.Error())
-		}
-
-		tmplDir, _ := TemplateDir()
-		err = shared.DeletePath(tmplDir)
 		if err != nil {
 			return fmt.Errorf("config.initiateConfig: %s", err.Error())
 		}
@@ -53,7 +47,7 @@ func initiateConfig(overwrite bool) error {
 	// Create "borrowedtime/templates" in home directory. MkdirAll creates
 	// parents if needed.
 	// We can ignore the error because we already called ConfigDir()
-	tmplDir, _ := TemplateDir()
+	tmplDir, _ := templateDir()
 	err = os.MkdirAll(tmplDir, os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("config.initiateConfig: create templates directory - %s", err.Error())
@@ -66,9 +60,16 @@ func initiateConfig(overwrite bool) error {
 	}
 
 	// Copy default templates and configurations to populate templates.
-	// Add everything from defaultTemplates map.
-	for name, content := range defaultTemplates {
-		err = addTemplate(name, content, true)
+	// Add everything from defaultFileTemplates.
+	for name, content := range defaultFileTemplates {
+		err = addFileTemplate(name, content, true)
+		if err != nil {
+			return fmt.Errorf("config.initiateConfig: add template %s - %s", name, err.Error())
+		}
+	}
+	// Add everything from defaultProjectTemplates.
+	for name, content := range defaultFileTemplates {
+		err = addFileTemplate(name, content, true)
 		if err != nil {
 			return fmt.Errorf("config.initiateConfig: add template %s - %s", name, err.Error())
 		}
@@ -132,16 +133,17 @@ func Backup(filename string) error {
 		backupFilename = path.Join(backupDir, backupTimestamp+".zip")
 	} else {
 
-		if path.Ext(filename) == "" {
+		if filepath.Ext(filename) == "" {
 			// If filename does not have an extension, pass zip.
-			backupFilename = path.Join(backupDir, filename+".zip")
+			filename = shared.AddExtension(filename, "zip")
+			backupFilename = path.Join(backupDir, filename)
 		} else {
 			// Otherwise, use the extension in the filename.
 			backupFilename = path.Join(backupDir, filename)
 		}
 	}
 
-	templatesDir, err := TemplateDir()
+	templatesDir, err := templateDir()
 	if err != nil {
 		return fmt.Errorf("config.Backup: %s", err.Error())
 	}

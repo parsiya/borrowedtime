@@ -43,7 +43,7 @@ func (p *Project) Create(templateName string, overwrite bool) error {
 		return fmt.Errorf("project.Project.Create: empty project")
 	}
 	// Generate template.
-	tmpl, err := p.generateTemplate(templateName)
+	tmpl, err := p.generateTemplate(templateName, true)
 	if err != nil {
 		return fmt.Errorf("project.Project.Create: %s", err.Error())
 	}
@@ -65,27 +65,53 @@ func (p *Project) Create(templateName string, overwrite bool) error {
 	}
 	err = json.Unmarshal(cfgBytes, &p.ProjectConfig)
 	if err != nil {
-		return fmt.Errorf("project.Project.Create: unmarshal project config - %s", err.Error())
+		// If the project config file is empty (no template or wrong template)
+		// then we will get an error here that we can print and return.
+		fmt.Printf("project.Project.Create: unmarshal project config - %s", err.Error())
+		return nil
+		// return fmt.Errorf("project.Project.Create: unmarshal project config - %s", err.Error())
 	}
 	return nil
 }
 
-// generateTemplate creates a template using the provided template string and project info.
-func (p Project) generateTemplate(templateName string) (string, error) {
-	return genTemplate(p, templateName)
+// generateTemplate creates a template using the provided template string and
+// project info. If isProject is set to true then we are generating a project,
+// otherwise we are generating a file.
+func (p Project) generateTemplate(templateName string, isProject bool) (string, error) {
+	return genTemplate(p, templateName, isProject)
 }
 
-// genTemplate creates a template using the provided template string and project info.
-func genTemplate(p Project, tmplName string) (string, error) {
-	pth, err := config.TemplatePath(tmplName)
-	if err != nil {
-		return "", err
+// genTemplate creates a template using the provided template string and project
+// info. If isProject is set to true then we are generating a project, otherwise
+// we are generating a file
+func genTemplate(p Project, tmplName string, isProject bool) (string, error) {
+
+	pth := ""
+	// Remove extension from tmplName if any.
+	tmplName = shared.RemoveExtension(tmplName)
+
+	if isProject {
+		// Get project templates.
+		prjTmpls, err := config.ProjectTemplates()
+		if err != nil {
+			return "", err
+		}
+		// Get project template path if it exists.
+		pth = prjTmpls[tmplName]
+	} else {
+		// Get file templates.
+		fileTmpls, err := config.FileTemplates()
+		if err != nil {
+			return "", err
+		}
+		pth = fileTmpls[tmplName]
 	}
+
 	// If template is not found.
 	if pth == "" {
 		return "", fmt.Errorf("project.genTemplate: template %s not found", tmplName)
 	}
-	// fmt.Println(pth)
+
 	// Read file, apparently ParseFiles does not work.
 	tmplStr, err := shared.ReadFileString(pth)
 	if err != nil {
@@ -155,7 +181,7 @@ func (n *Node) Create(p Project, overwrite bool) error {
 
 		// generateTemplate will return an error if template is not found, which
 		// means the path is empty.
-		tmplString, _ := p.generateTemplate(n.Info.Template)
+		tmplString, _ := p.generateTemplate(n.Info.Template, false)
 		// If template string is not empty, it has been generated.
 		// We could also check for lack of error here, if err == nil.
 		if tmplString != "" {
