@@ -50,7 +50,21 @@ func initiateConfig(overwrite bool) error {
 	tmplDir, _ := templateDir()
 	err = os.MkdirAll(tmplDir, os.ModePerm)
 	if err != nil {
-		return fmt.Errorf("config.initiateConfig: create templates directory - %s", err.Error())
+		return fmt.Errorf("config.initiateConfig: create the templates directory - %s", err.Error())
+	}
+	// Create the file sub-directory inside templates.
+	fileTmplDir, _ := fileTemplateDir()
+	err = os.MkdirAll(fileTmplDir, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("config.initiateConfig: create the %s directory - %s",
+			fileTmplDir, err.Error())
+	}
+	// Create the project sub-directory inside templates.
+	prjTmplDir, _ := projectTemplateDir()
+	err = os.MkdirAll(prjTmplDir, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("config.initiateConfig: create the %s directory - %s",
+			prjTmplDir, err.Error())
 	}
 
 	bckDir, _ := backupDir()
