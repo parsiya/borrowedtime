@@ -19,12 +19,18 @@ const (
 // Default templates.
 // Create content as a const string to "defaultTemplates.go" and add the names
 // to this map to get them created in initConfig.
-var defaultTemplates = map[string]string{
-	"notes.json":             defaultNoteTemplate,
-	"creds.json":             defaultCredsTemplate,
-	"project-config.json":    defaultProjectConfig,
+
+// Default file templates.
+var defaultFileTemplates = map[string]string{
+	"notes.md":          defaultNoteTemplate,
+	"creds.md":          defaultCredsTemplate,
+	"project-config.md": defaultProjectConfig,
+	"todo.md":           defaultTODOTemplate,
+}
+
+// Default project templates.
+var defaultProjectTemplates = map[string]string{
 	"project-structure.json": defaultProjectStructure,
-	"todo.json":              defaultTODOTemplate,
 }
 
 // Start menu path

@@ -59,9 +59,9 @@ borrowedtime
 ├───backups
 ├───data
 └───templates
-        creds.json
-        notes.json
-        project-config.json
+        creds.md
+        notes.md
+        project-config.md
         project-structure.json
 ```
 
@@ -213,16 +213,18 @@ the template engine. For example, the `notes` template is:
 ### Modifying Templates
 File templates can be modified directly. Add new directories, files, and assign
 file templates at you see fit. New templates can be added manually by dropping
-them into the `templates` directory or using the `template add` command.
+them into the `templates` directory or more conveniently using the `config edit`
+command that opens the config directory in the editor.
 
-You can use sub-directories to manage templates but each template name must be
-unique deployment wide. This means you cannot have two files named `notes.json`
-inside the `templates` directory in different sub-directories.
+You can use sub-directories to manage templates but **each template name must be
+unique deployment wide**. This means you cannot have two files named `notes.md`
+inside the `templates` directory in different sub-directories. Extensions are
+also ignored meaning you cannot have both `notes.md` and `notes.json`.
+
+If you have duplicate template names, it will cause undefined behavior.
 
 The template is addressed by the name of the file containing it without the
-extension. As a matter of convenience, all templates get the extension json
-although file templates are usually plaintext files. This should be changed,
-see [issue #6](https://github.com/parsiya/borrowedtime/issues/6).
+extension. You can choose any extension.
 
 ### Custom Fields in File Templates
 It's possible to add custom items to the configuration file and use them in

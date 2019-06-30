@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"path/filepath"
-	"sort"
 
 	"github.com/parsiya/borrowedtime/shared"
 )
@@ -14,10 +13,10 @@ type Template struct {
 	FullPath string `json:"fullpath"`
 }
 
-// TemplateDir returns the templates directory.
+// templateDir returns the templates directory.
 // "homedir/borrowedtime/templates" or "configDir/templates"
-// TODO: Make private.
-func TemplateDir() (string, error) {
+// TODO: Remove this.
+func templateDir() (string, error) {
 	configDir, err := configDir()
 	if err != nil {
 		return "", fmt.Errorf("config.TemplateDir: %s", err.Error())
@@ -25,12 +24,71 @@ func TemplateDir() (string, error) {
 	return filepath.Join(configDir, "templates"), nil
 }
 
-// TemplatePath returns template path. Returns "" if template does not exist.
+// fileTemplateDir returns the "templates/file" directory.
+// "homedir/borrowedtime/templates/file" or "configDir/templates/file"
+func fileTemplateDir() (string, error) {
+	configDir, err := configDir()
+	if err != nil {
+		return "", fmt.Errorf("config.TemplateDir: %s", err.Error())
+	}
+	return filepath.Join(configDir, "templates/file"), nil
+}
+
+// projectTemplateDir returns the "templates/project`" directory.
+// "homedir/borrowedtime/templates/project" or "configDir/templates/project"
+func projectTemplateDir() (string, error) {
+	configDir, err := configDir()
+	if err != nil {
+		return "", fmt.Errorf("config.TemplateDir: %s", err.Error())
+	}
+	return filepath.Join(configDir, "templates/project"), nil
+}
+
+// FileTemplates returns returns map[filename]fullpath of all files inside the
+// file template directory.
+func FileTemplates() (mp map[string]string, err error) {
+	// Get the file template directory.
+	dir, err := fileTemplateDir()
+	if err != nil {
+		return mp, err
+	}
+	return templateMap(dir, "*")
+}
+
+// ProjectTemplates returns returns map[filename]fullpath of all files inside
+// the project template directory.
+func ProjectTemplates() (mp map[string]string, err error) {
+	// Get the project template directory.
+	dir, err := projectTemplateDir()
+	if err != nil {
+		return mp, err
+	}
+	return templateMap(dir, "*")
+}
+
+// templateMap creates and returns a map[TemplateName]FullPath of files matching
+// pattern in root. Pattern is the typical "shell file name pattern" (e.g. *.exe
+// or * to list all files).
+// TemplateName is the name of the template file without extensions. Duplicates
+// will be overwritten but that is expected.
+func templateMap(root, pattern string) (map[string]string, error) {
+	mp := make(map[string]string, 0)
+	// List all files matching pattern in root.
+	files, err := shared.ListFiles(root, pattern)
+	if err != nil {
+		return mp, err
+	}
+	// Add them all to the map. Duplicates will overwrite but that is expected.
+	for _, fi := range files {
+		mp[shared.RemoveExtension(fi)] = filepath.Join(root, fi)
+	}
+	return mp, nil
+}
+
+// TemplatePath returns template path. Returns "" if the template does not exist.
 // Template names should be passed without the extension.
 // TODO: Make private.
 func TemplatePath(name string) (string, error) {
-	// Remove extension if it's passed in template name.
-	name = shared.RemoveExtension(name)
 	// Get template map.
 	mp, err := makeTemplateMap()
 	if err != nil {
@@ -43,8 +101,8 @@ func TemplatePath(name string) (string, error) {
 func makeTemplateMap() (map[string]string, error) {
 	mp := make(map[string]string, 0)
 
-	tmplDir, _ := TemplateDir()
-	tmplIndex, err := listTemplateFiles(tmplDir)
+	tmplDir, _ := templateDir()
+	tmplIndex, err := listTemplates(tmplDir)
 	if err != nil {
 		return mp, fmt.Errorf("config.makeTemplateMap: %s", err.Error())
 	}
@@ -56,31 +114,23 @@ func makeTemplateMap() (map[string]string, error) {
 	return mp, nil
 }
 
+// addFileTemplate adds a new file template to "templates/files".
+func addFileTemplate(name, content string, overwrite bool) error {
+	// Write the template to file.
+	dir, err := fileTemplateDir()
+	if err != nil {
+		return err
+	}
+	return shared.WriteFileString(filepath.Join(dir, name), content, overwrite)
+}
+
 // addTemplate adds a new template to the root of templates directory.
 func addTemplate(name, content string, overwrite bool) error {
-	// Get Base.
-	name = filepath.Base(name)
-	// Remove extension from template name if any.
-	name = shared.RemoveExtension(name)
-
-	// Get template path to check for duplicates.
-	tmplPath, err := TemplatePath(name)
-	if err != nil {
-		return fmt.Errorf("config.AddTemplate: %s", err.Error())
-	}
-	// Check for duplicates.
-	if tmplPath != "" && !overwrite {
-		return fmt.Errorf("config.AddTemplate: template %s already exists at %s", name, tmplPath)
-	}
 
 	// Write template to file.
-	tmplDir, _ := TemplateDir()
-	// Add json extension. This does not change the template name in map because
-	// extensions are removed when creating the map but it helps with syntax
-	// highlighting and editor support during file edit.
-	name = shared.AddExtension(name, "json")
+	tmplDir, _ := templateDir()
 	pa := filepath.Join(tmplDir, name)
-	err = shared.WriteFileString(content, pa, true)
+	err := shared.WriteFileString(pa, content, true)
 	// Can replace with "return shared.WriteFileString" if we do not want the custom error message.
 	if err != nil {
 		return fmt.Errorf("config.AddTemplate: %s", err.Error())
@@ -88,9 +138,9 @@ func addTemplate(name, content string, overwrite bool) error {
 	return nil
 }
 
-// listTemplateFiles creates a list of all files regardless of hierarchy under a
+// listTemplates creates a list of all files regardless of hierarchy under a
 // location and returns a []Template.
-func listTemplateFiles(root string) (index []Template, err error) {
+func listTemplates(root string) (index []Template, err error) {
 	files, err := shared.ListFiles(root, "*")
 	if err != nil {
 		return index, fmt.Errorf("config.listTemplates: %s", err.Error())
@@ -106,22 +156,4 @@ func listTemplateFiles(root string) (index []Template, err error) {
 		index = append(index, ix)
 	}
 	return index, err
-}
-
-// Templates returns the template map and a sorted slice of keys to print
-// them in order.
-func Templates() (map[string]string, []string, error) {
-	templateMap, err := makeTemplateMap()
-	if err != nil {
-		return templateMap, []string{}, err
-	}
-	// Sort the map keys and then print them in that order.
-	names := make([]string, len(templateMap))
-	i := 0
-	for name := range templateMap {
-		names[i] = name
-		i++
-	}
-	sort.Strings(names)
-	return templateMap, names, nil
 }

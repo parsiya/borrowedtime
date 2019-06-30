@@ -38,7 +38,7 @@ func ConfigCmd() prompter.Command {
 
 	editConfigCmd := prompter.Command{
 		Name:        "edit",
-		Description: "edit configuration file",
+		Description: "edit the configuration directory",
 		Executor:    editConfigExecutor,
 	}
 
