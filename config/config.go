@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -144,16 +143,16 @@ func Backup(filename string) error {
 	if filename == "" {
 		backupTimestamp := time.Now().Format("2006-01-02-15-04-05")
 
-		backupFilename = path.Join(backupDir, backupTimestamp+".zip")
+		backupFilename = filepath.Join(backupDir, backupTimestamp+".zip")
 	} else {
 
 		if filepath.Ext(filename) == "" {
 			// If filename does not have an extension, pass zip.
 			filename = shared.AddExtension(filename, "zip")
-			backupFilename = path.Join(backupDir, filename)
+			backupFilename = filepath.Join(backupDir, filename)
 		} else {
 			// Otherwise, use the extension in the filename.
-			backupFilename = path.Join(backupDir, filename)
+			backupFilename = filepath.Join(backupDir, filename)
 		}
 	}
 
@@ -296,7 +295,7 @@ func parseStartMenu() (basePaths []string, err error) {
 	// Get the location of user start menu.
 	// "homedir/AppData/Roaming/Microsoft/Windows/Start Menu/Programs"
 	home, _ := homedir.Dir()
-	startMenuUser := path.Join(home, "AppData/Roaming/Microsoft/Windows/Start Menu/Programs")
+	startMenuUser := filepath.Join(home, "AppData/Roaming/Microsoft/Windows/Start Menu/Programs")
 	b2, err := parseLnk(startMenuUser)
 	if err != nil {
 		// Do not return an error because we have already parsed the other one.
@@ -401,7 +400,7 @@ func configDir() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("config.ConfigDir: %s", err.Error())
 	}
-	return path.Join(homedir, "borrowedtime"), nil
+	return filepath.Join(homedir, "borrowedtime"), nil
 }
 
 // backupDir returns the backup directory.
@@ -411,7 +410,7 @@ func backupDir() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("config.backupDir: %s", err.Error())
 	}
-	return path.Join(configDir, "backups"), nil
+	return filepath.Join(configDir, "backups"), nil
 }
 
 // DataDir returns the data directory.
@@ -421,7 +420,7 @@ func dataDir() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("config.DataDir: %s", err.Error())
 	}
-	return path.Join(configDir, "data"), nil
+	return filepath.Join(configDir, "data"), nil
 }
 
 // configDirExists returns true if it exists and any errors.
@@ -447,7 +446,7 @@ func ConfigFilePath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("config.configFile: %s", err.Error())
 	}
-	return path.Join(configDir, defaultWorkspaceConfigFilename), nil
+	return filepath.Join(configDir, defaultWorkspaceConfigFilename), nil
 }
 
 // Edit attempts to open the config file and the borrowed time directory with
