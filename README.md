@@ -169,7 +169,7 @@ Project templates are JSON files in the following structure. They use the Go
 * `Workspace` points to the root of your workspace.
 * `ProjectName` is the name of the directory.
 
-Project templates should be stored under `templates/project` directory.
+Project templates should be stored under the `templates/project` directory.
 
 Note the children's path is relative to their parent. The tool is not looking
 for full paths for children.
@@ -223,7 +223,7 @@ the template engine. For example, the `notes` template is:
 ## 
 ```
 
-Project templates should be stored under `templates/file` directory.
+File templates should be stored under the `templates/file` directory.
 
 ### Modifying Templates
 File templates can be modified directly. Add new directories, files, and assign
