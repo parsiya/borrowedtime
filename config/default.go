@@ -32,6 +32,3 @@ var defaultFileTemplates = map[string]string{
 var defaultProjectTemplates = map[string]string{
 	"project-structure.json": defaultProjectStructure,
 }
-
-// Start menu path
-var startMenuAllUsers = "C:/ProgramData/Microsoft/Windows/Start Menu/Programs"
