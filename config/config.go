@@ -7,45 +7,47 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"time"
 
 	"github.com/mholt/archiver"
-	"github.com/mitchellh/go-homedir"
 	"github.com/parsiya/borrowedtime/shared"
-	lnk "github.com/parsiya/golnk"
 )
 
 // initiateConfig creates the homedir/borrowedtime directory and copies the
 // configfiles. Next it opens the config file with notepad.exe on Windows.
+// 1. Check if config directory exists.
+// 2. Return with an error if it exists and overwrite is not set.
+// 3. Delete the config directory.
+// 4. Create the directory structure.
 // TODO: Add default editors for other OS.
 // TODO: Editor detection, detect some popular editors and create commented
 // entries for them in the config file. ~~Needs lnk parser.~~ Lnk parser is done,
 // need some popular editors.
 func initiateConfig(overwrite bool) error {
-	// Delete config.json.
-	if overwrite {
-		// Delete config file.
-		cfgFile, _ := ConfigFilePath()
-		err := shared.DeletePath(cfgFile)
-		if err != nil {
-			return fmt.Errorf("config.initiateConfig: %s", err.Error())
-		}
-	}
 
+	// 1. Check if config directory exists.
 	exists, err := configDirExists()
 	if err != nil {
 		return fmt.Errorf("config.initiateConfig: %s", err.Error())
 	}
-	// If exists, return an error because we do not want extra inits to
-	// overwrite everything.
+	// 2. Return with an error if it exists and overwrite is not set.
 	if exists && !overwrite {
 		return fmt.Errorf("config.initiateConfig: config already exists, use \"config reset\"")
 	}
 
+	// 3. Delete the config directory.
+	// We can safely ignore any errors here because configDirExists was executed
+	// successfully.
+	configDir, _ := configDir()
+	if err = shared.DeletePath(configDir); err != nil {
+		return fmt.Errorf("config.initiateConfig: delete the config directory - %s", err.Error())
+	}
+
+	// 4. Create the directory structure.
+	// TODO: There should be a better way of doing this. See issue-20.
 	// Create "borrowedtime/templates" in home directory. MkdirAll creates
 	// parents if needed.
-	// We can ignore the error because we already called ConfigDir()
+	// We can ignore the error here because we already called ConfigDir().
 	tmplDir, _ := templateDir()
 	err = os.MkdirAll(tmplDir, os.ModePerm)
 	if err != nil {
@@ -88,7 +90,7 @@ func initiateConfig(overwrite bool) error {
 		}
 	}
 
-	// Create data directory and copy data files.
+	// Create data directory and copy data files if any.
 	dataDir, _ := dataDir()
 	err = os.MkdirAll(dataDir, os.ModePerm)
 	if err != nil {
@@ -241,7 +243,7 @@ func createDefaultConfig() error {
 		defaultCfg.Set("workspace", filepath.ToSlash(prjPath))
 
 		// Set default editor to VS Code if it exists.
-		defaultCfg.Set("editor", detectApp("code.exe"))
+		defaultCfg.Set("editor", shared.DetectApp("code.exe"))
 	}
 
 	if err := Write(defaultCfg); err != nil {
@@ -253,95 +255,6 @@ func createDefaultConfig() error {
 		return fmt.Errorf("config.createDefaultConfig: open config with default editor - %s", err.Error())
 	}
 	return nil
-}
-
-// detectApp parses the start menu, looks for an executable name
-// (e.g. code.exe) in base paths, and returns the complete path.
-func detectApp(executable string) string {
-	if executable == "" {
-		return ""
-	}
-
-	paths, err := parseStartMenu()
-	if err != nil {
-		return ""
-	}
-
-	for _, p := range paths {
-		if strings.Contains(strings.ToLower(p), strings.ToLower(executable)) {
-			return filepath.ToSlash(p)
-		}
-	}
-	return ""
-}
-
-// parseStartMenu returns where the lnk files in Windows start menu are pointing
-// to. To do this, I implemented a lnk parser at https://github.com/parsiya/golnk.
-func parseStartMenu() (basePaths []string, err error) {
-	// Check OS.
-	if runtime.GOOS != "windows" {
-		return basePaths,
-			fmt.Errorf("config.parseStartMenu: not running on windows, running %s", runtime.GOOS)
-	}
-
-	// Now parse two locations.
-	// var startMenuAllUsers = "C:/ProgramData/Microsoft/Windows/Start Menu/Programs"
-	b1, err := parseLnk(startMenuAllUsers)
-	if err != nil {
-		return basePaths, fmt.Errorf("config.parseStartMenu: parse all users start menu - %s", err.Error())
-	}
-	basePaths = append(basePaths, b1...)
-
-	// Get the location of user start menu.
-	// "homedir/AppData/Roaming/Microsoft/Windows/Start Menu/Programs"
-	home, _ := homedir.Dir()
-	startMenuUser := filepath.Join(home, "AppData/Roaming/Microsoft/Windows/Start Menu/Programs")
-	b2, err := parseLnk(startMenuUser)
-	if err != nil {
-		// Do not return an error because we have already parsed the other one.
-		return basePaths, nil
-	}
-	basePaths = append(basePaths, b2...)
-
-	return basePaths, nil
-}
-
-// parseLnk parses all lnk files in the target location and subdirectories, and
-// return the base paths.
-func parseLnk(root string) (basePaths []string, err error) {
-	exists, err := shared.PathExists(root)
-	if err != nil {
-		return basePaths, fmt.Errorf("config.parseLnk: check root - %s", err.Error())
-	}
-	if !exists {
-		return basePaths, fmt.Errorf("config.parseLnk: check root - %s", err.Error())
-	}
-
-	err = filepath.Walk(root, func(fpath string, info os.FileInfo, walkErr error) error {
-		if filepath.Ext(fpath) == ".lnk" {
-			fi, lnkErr := lnk.File(fpath)
-			// If file was not parsed, move on.
-			if lnkErr != nil {
-				return nil
-			}
-			var targetPath = ""
-			if fi.LinkInfo.LocalBasePath != "" {
-				targetPath = fi.LinkInfo.LocalBasePath
-			}
-			if fi.LinkInfo.LocalBasePathUnicode != "" {
-				targetPath = fi.LinkInfo.LocalBasePathUnicode
-			}
-
-			if targetPath != "" && filepath.Ext(targetPath) == ".exe" {
-				basePaths = append(basePaths, targetPath)
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		return basePaths, fmt.Errorf("borrowedtime.parseLnk: %s", err.Error())
-	}
-	return basePaths, nil
 }
 
 // Read reads the configuration file at "homedir/borrowedtime/config.json"
