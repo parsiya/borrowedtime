@@ -81,7 +81,7 @@ func initiateConfig(overwrite bool) error {
 		}
 	}
 	// Add everything from defaultProjectTemplates.
-	for name, content := range defaultFileTemplates {
+	for name, content := range defaultProjectTemplates {
 		err = addFileTemplate(name, content, true)
 		if err != nil {
 			return fmt.Errorf("config.initiateConfig: add template %s - %s", name, err.Error())
@@ -382,7 +382,10 @@ func Write(cfg ConfigMap) error {
 		if err != nil {
 			return fmt.Errorf("config.Write: write config file - %s", err.Error())
 		}
-		configFile.WriteString(shared.WindowsifyString(cfgString))
+		_, err = configFile.WriteString(shared.WindowsifyString(cfgString))
+		if err != nil {
+			return fmt.Errorf("config.Write: write config file - %s", err.Error())
+		}
 	default:
 		// If not Windows, indent cfg and write it to the file.
 		enc := json.NewEncoder(configFile)
