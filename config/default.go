@@ -3,7 +3,7 @@ package config
 // Default config.
 const (
 	// TODO: Convert this to template and pass a config struct.
-	defaultWorkspaceConfig = `
+	defaultConfig = `
 {
 	"editor": "",
 	"workspace":"",
@@ -13,7 +13,7 @@ const (
 }`
 
 	// Default workspace config template.
-	defaultWorkspaceConfigFilename = "config.json"
+	defaultConfigFilename = "config.json"
 )
 
 // Default templates.

@@ -242,13 +242,13 @@ The template is addressed by the name of the file containing it without the
 extension. You can choose any extension.
 
 ### Custom Fields in File Templates
-It's possible to add custom items to the configuration file and use them in
-the file templates without rebuilding the application. The project struct has
-a field named `WorkspaceConfig` that is populated with a map of key/values from
-the configuration file.
+It's possible to add custom items to the configuration file and use them in the
+file templates without rebuilding the application. The project struct has a
+field named `Config` that is populated with a map of key/values from the
+configuration file.
 
 1. Add a new key to the config file. For example, `"customkey": "value"`.
-2. Inside the file template, add: `{{ index .WorkspaceConfig "customkey" }}`.
+2. Inside the file template, add: `{{ index .Config "customkey" }}`.
    Keys are case-sensitive. Use only use lowercase keys for simplicity.
 3. The placeholder will be replaced by the value of `customkey` from the
    configuration file.
