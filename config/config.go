@@ -225,7 +225,7 @@ func createDefaultConfig() error {
 
 	// Read defaultConfig and create the config slice.
 	defaultCfg := make(ConfigMap)
-	err = json.Unmarshal([]byte(defaultWorkspaceConfig), &defaultCfg)
+	err = json.Unmarshal([]byte(defaultConfig), &defaultCfg)
 	if err != nil {
 		return fmt.Errorf("config.createDefaultConfig: unmarshal default config - %s", err.Error())
 	}
@@ -362,7 +362,7 @@ func ConfigFilePath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("config.configFile: %s", err.Error())
 	}
-	return filepath.Join(configDir, defaultWorkspaceConfigFilename), nil
+	return filepath.Join(configDir, defaultConfigFilename), nil
 }
 
 // Edit attempts to open the config file and the borrowed time directory with

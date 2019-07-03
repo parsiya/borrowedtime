@@ -19,8 +19,8 @@ type Project struct {
 	Workspace string `json:"workspace"`
 	// ProjectRoot is "workspace/projectname"
 	ProjectRoot string `json:"projectroot"`
-	// WorkspaceConfig is a copy of the workspace configuration.
-	WorkspaceConfig map[string]string `json:"workspaceconfig"`
+	// Config is a copy of the workspace configuration.
+	Config map[string]string `json:"config"`
 	// ProjectConfig contains project specific configuration.
 	ProjectConfig map[string]string `json:"projectconfig"`
 }
@@ -29,10 +29,10 @@ type Project struct {
 func New(name string) *Project {
 	cfg, _ := config.Read()
 	return &Project{
-		ProjectName:     shared.EscapeString(name),
-		Workspace:       shared.EscapeString(cfg.Key("workspace")),
-		ProjectRoot:     shared.EscapeString(filepath.Join(cfg.Key("workspace"), name)),
-		WorkspaceConfig: cfg,
+		ProjectName: shared.EscapeString(name),
+		Workspace:   shared.EscapeString(cfg.Key("workspace")),
+		ProjectRoot: shared.EscapeString(filepath.Join(cfg.Key("workspace"), name)),
+		Config:      cfg,
 	}
 }
 
