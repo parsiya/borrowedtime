@@ -31,7 +31,7 @@ editors/locations/paths can be added for other Operating Systems.
 
 ## Installation
 
-1. Run `dep ensure` to download all vendored dependencies.
+1. `go get github.com/parsiya/borrowedtime`.
 2. `go run main.go` or `go build` to build the program.
 
 ## dependencies
