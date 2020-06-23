@@ -1,5 +1,7 @@
 module github.com/parsiya/borrowedtime
 
+go 1.14
+
 require (
 	github.com/basgys/goxml2json v1.1.0
 	github.com/bitly/go-simplejson v0.5.0 // indirect
