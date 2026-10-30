@@ -1,8 +1,46 @@
 package shared
 
 import (
+	"os"
+	"path/filepath"
+	"reflect"
 	"testing"
 )
+
+func TestListFiles(t *testing.T) {
+	root := t.TempDir()
+	if err := os.Mkdir(filepath.Join(root, "nested"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"notes.md", "config.json", filepath.Join("nested", "todo.md")} {
+		if err := os.WriteFile(filepath.Join(root, name), nil, 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, test := range []struct {
+		pattern string
+		want    []string
+	}{
+		{"*", []string{"config.json", filepath.Join("nested", "todo.md"), "notes.md"}},
+		{"*.md", []string{filepath.Join("nested", "todo.md"), "notes.md"}},
+	} {
+		t.Run(test.pattern, func(t *testing.T) {
+			got, err := ListFiles(root, test.pattern)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !reflect.DeepEqual(got, test.want) {
+				t.Fatalf("ListFiles() = %v, want %v", got, test.want)
+			}
+		})
+	}
+	if _, err := ListFiles(root, "["); err == nil {
+		t.Fatal("expected invalid pattern error")
+	}
+	if _, err := ListFiles(filepath.Join(root, "missing"), "*"); err == nil {
+		t.Fatal("expected missing directory error")
+	}
+}
 
 func TestRemoveExtension(t *testing.T) {
 	type args struct {

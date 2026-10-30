@@ -1,3 +1,6 @@
+//go:build windows
+// +build windows
+
 package shared
 
 import (
@@ -73,10 +76,13 @@ func parseLnk(root string) (basePaths []string, err error) {
 		return basePaths, fmt.Errorf("config.parseLnk: check root - %s", err.Error())
 	}
 	if !exists {
-		return basePaths, fmt.Errorf("config.parseLnk: check root - %s", err.Error())
+		return basePaths, fmt.Errorf("config.parseLnk: root %s does not exist", root)
 	}
 
 	err = filepath.Walk(root, func(fpath string, info os.FileInfo, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
 		if filepath.Ext(fpath) == ".lnk" {
 			fi, lnkErr := lnk.File(fpath)
 			// If file was not parsed, move on.

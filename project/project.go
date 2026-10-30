@@ -3,10 +3,13 @@ package project
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
 
+	"github.com/parsiya/borrowedtime/command"
 	"github.com/parsiya/borrowedtime/config"
 	"github.com/parsiya/borrowedtime/shared"
 )
@@ -23,6 +26,8 @@ type Project struct {
 	Config map[string]string `json:"config"`
 	// ProjectConfig contains project specific configuration.
 	ProjectConfig map[string]string `json:"projectconfig"`
+	postCreate    []string
+	projectDir    string
 }
 
 // New creates a new project.
@@ -55,22 +60,30 @@ func (p *Project) Create(templateName string, overwrite bool) error {
 	// Project config is at "projectRoot/.config.json".
 	configPath := filepath.Join(p.ProjectRoot, ".config.json")
 	cfgBytes, err := shared.ReadFileByte(configPath)
-	if err != nil {
-		// If there is no project config in the template, this will return an
-		// error. Print an error and return instead.
-		fmt.Printf("project.Project.Create: read project config - %s", err.Error())
-		return nil
-		// return fmt.Errorf("project.Project.Create: read project config - %s", err.Error())
+	if err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("project.Project.Create: read project config - %s", err.Error())
 	}
-	err = json.Unmarshal(cfgBytes, &p.ProjectConfig)
-	if err != nil {
-		// If the project config file is empty (no template or wrong template)
-		// then we will get an error here that we can print and return.
-		fmt.Printf("project.Project.Create: unmarshal project config - %s", err.Error())
-		return nil
-		// return fmt.Errorf("project.Project.Create: unmarshal project config - %s", err.Error())
+	if err == nil {
+		if err := json.Unmarshal(cfgBytes, &p.ProjectConfig); err != nil {
+			return fmt.Errorf("project.Project.Create: unmarshal project config - %s", err.Error())
+		}
 	}
-	return nil
+	if len(p.postCreate) == 0 {
+		return nil
+	}
+	batches, err := config.Commands()
+	if err != nil {
+		return err
+	}
+	var steps []command.Command
+	for _, name := range p.postCreate {
+		batch, exists := batches[name]
+		if !exists {
+			return fmt.Errorf("project.Project.Create: command batch %q not found", name)
+		}
+		steps = append(steps, batch...)
+	}
+	return command.Run(steps, p.projectDir)
 }
 
 // generateTemplate creates a template using the provided template string and
@@ -84,6 +97,9 @@ func (p Project) generateTemplate(templateName string, isProject bool) (string, 
 // info. If isProject is set to true then we are generating a project, otherwise
 // we are generating a file
 func genTemplate(p Project, tmplName string, isProject bool) (string, error) {
+	if shared.Debug {
+		log.Printf("render template %q (project=%t)", tmplName, isProject)
+	}
 
 	pth := ""
 	// Remove extension from tmplName if any.
@@ -131,19 +147,23 @@ func genTemplate(p Project, tmplName string, isProject bool) (string, error) {
 }
 
 // executeTemplate creates the directory structure according to a generated template.
-func (p Project) executeTemplate(tmpl string, overwrite bool) error {
+// Example: p.executeTemplate(tmpl, false) preserves existing files.
+func (p *Project) executeTemplate(tmpl string, overwrite bool) error {
 	return execProjectTemplate(p, tmpl, overwrite)
 }
 
 // execProjectTemplate creates the directory structure according to a generated template.
-func execProjectTemplate(p Project, tmpl string, overwrite bool) error {
+// Example: execProjectTemplate(&p, tmpl, false) preserves existing files.
+func execProjectTemplate(p *Project, tmpl string, overwrite bool) error {
 	root := &Node{}
 	// Unmarshal template.
 	if err := json.Unmarshal([]byte(tmpl), root); err != nil {
 		return fmt.Errorf("project.executeTemplate: unmarshal template - %s", err.Error())
 	}
+	p.postCreate = root.PostCreate
+	p.projectDir = root.FullPath
 	// Create directory structure.
-	if err := root.Create(p, overwrite); err != nil {
+	if err := root.Create(*p, overwrite); err != nil {
 		return fmt.Errorf("project.executeTemplate: create directory structure - %s", err.Error())
 	}
 	return nil
