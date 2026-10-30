@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/parsiya/borrowedtime/shared"
@@ -62,8 +63,9 @@ func ProjectCmd() prompter.Command {
 
 // projectExecutor executes the project command.
 func projectExecutor(args prompter.CmdArgs) error {
-	fmt.Println("inside projectExecutor")
-	fmt.Printf("args: %v\n", args)
+	if shared.Debug {
+		log.Print("command: project")
+	}
 
 	if args.Contains("open") {
 		project, err := args.GetFirstValue("open")
@@ -169,8 +171,9 @@ func createProjectCompleter(optName string, _ []string) []prompt.Suggest {
 // createProjectExecutor is the executor for the project command. Creates a new
 // project name with using an optional template.
 func createProjectExecutor(args prompter.CmdArgs) (err error) {
-	fmt.Println("inside createProjectExecutor")
-	fmt.Printf("args: %v\n", args)
+	if shared.Debug {
+		log.Print("command: project create")
+	}
 
 	// Read config.
 	cfg, err := config.Read()
@@ -191,7 +194,6 @@ func createProjectExecutor(args prompter.CmdArgs) (err error) {
 			return err
 		}
 	} else {
-		fmt.Printf("%+v\n", args)
 		return fmt.Errorf("project.createProjectExecutor: please provide project name")
 	}
 

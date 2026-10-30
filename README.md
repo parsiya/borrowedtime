@@ -25,9 +25,9 @@ Note: Borrowed Time is under heavy development. The API of sub-packages and
 ![main command](.github/maincmd.png)
 
 ## Operating System Support
-Borrowed Time is mainly developed and used on Windows. Currently, only Windows
-is supported. However, no OS dependent libraries are in use so default
-editors/locations/paths can be added for other Operating Systems.
+Borrowed Time was mainly developed and used on Windows. Linux builds and tests
+are supported; configure `workspace` and `editor` manually on Linux. Start Menu
+editor detection and automatic default-editor opening remain Windows-only.
 
 ## Installation
 
@@ -94,6 +94,10 @@ templates. A sample configuration file on Windows:
 ## Commands
 Borrowed Time has a few different commands.
 
+Start with `borrowedtime -debug` to enable diagnostic logging on stderr.
+Logging is disabled by default. Diagnostics include command names, template names,
+and filesystem paths, but not template contents or configuration values.
+
 ### deploy
 `deploy` installs Borrowed Time (creates the config file and the directory
 structure) and opens the configuration file with the default editor
@@ -157,6 +161,40 @@ directories). The path to the project is passed to the editor as an argument.
 
 ![project open](.github/project-open.gif)
 
+### command
+Named batches are configured in `borrowedtime/data/commands.json` under your
+home directory. Create this optional file using `config edit`:
+
+```json
+{
+    "setup-git": [
+        {"executable": "git", "args": ["init"]},
+        {"executable": "git", "args": ["config", "core.autocrlf", "false"]}
+    ]
+}
+```
+
+Inside the interactive prompt:
+
+```text
+command list
+command run setup-git -project example
+command run setup-git
+```
+
+`-project` selects a project in the configured workspace. Without it, the batch
+runs in the directory where Borrowed Time was started. Tab completion suggests
+batch names and project names.
+
+Steps execute sequentially, inherit stdin/stdout/stderr, and stop at the first
+failure. Arguments are literal: shell variables, pipelines, and redirects are
+not interpreted. To use a shell, name it explicitly as the executable and pass
+its command through `args`.
+
+Treat command definitions and templates with hooks as trusted executable code.
+Diagnostics omit arguments, but child programs control their own output and may
+print sensitive values. No rollback is performed for completed steps.
+
 ## Templates
 Borrowed Time can customize project structure and generated files with
 templates. To edit templates use the `config edit` command to open the config
@@ -212,6 +250,26 @@ for full paths for children.
 
 As you can see, each file can have its own individual template (see below for
 file templates). The value of `template` is ignored for directories.
+
+### Post-Create Commands
+Add an optional `postcreate` list to the root of a project template to run named
+batches after all files have been created and project configuration has loaded:
+
+```json
+{
+    "path": "{{ .Workspace }}/{{ .ProjectName }}",
+    "info": {"isdir": true},
+    "children": [],
+    "postcreate": ["setup-git"]
+}
+```
+
+Hooks run in the generated root directory, in list order, before opening the
+editor. Every listed batch must exist in `data/commands.json`. Hooks stop on
+failure and leave generated files in place. Hooks also run when creating with
+`-overwrite`; rerunning them may repeat side effects. Templates without hooks
+do not read command configuration or execute commands. Only root-level
+`postcreate` is used.
 
 ### File Templates
 File templates are text files. They can contain similar placeholders based on

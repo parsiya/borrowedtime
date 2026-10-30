@@ -1,23 +1,28 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 
 	prompt "github.com/c-bata/go-prompt"
 	"github.com/parsiya/borrowedtime/cmd"
 	"github.com/parsiya/borrowedtime/config"
+	"github.com/parsiya/borrowedtime/shared"
 	"github.com/starkriedesel/prompter"
 )
 
 func main() {
+	flag.BoolVar(&shared.Debug, "debug", false, "enable diagnostic logging to stderr")
+	flag.Parse()
 
 	configCmd := cmd.ConfigCmd()
 	deployCmd := cmd.DeployCmd()
 	projectCmd := cmd.ProjectCmd()
+	commandCmd := cmd.CommandCmd()
 	exitCmd := cmd.ExitCmd()
 
 	comp := prompter.NewCompleter()
-	err := comp.RegisterCommands(configCmd, deployCmd, projectCmd, exitCmd)
+	err := comp.RegisterCommands(configCmd, deployCmd, projectCmd, commandCmd, exitCmd)
 	if err != nil {
 		panic(err)
 	}

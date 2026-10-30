@@ -61,7 +61,7 @@ const defaultProjectStructure = `
                     "path": "report.json",
                     "info": {
                         "isdir": false,
-                        "template": "report"
+                        "template": ""
                     },
                     "children": []
                 }

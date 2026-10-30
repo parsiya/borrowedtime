@@ -2,6 +2,7 @@ package project
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -17,13 +18,20 @@ type FileInfo struct {
 
 // Node represents a node in a directory tree.
 type Node struct {
-	FullPath string    `json:"path"`
-	Info     *FileInfo `json:"info"`
-	Children []*Node   `json:"children"`
+	FullPath   string    `json:"path"`
+	Info       *FileInfo `json:"info"`
+	Children   []*Node   `json:"children"`
+	PostCreate []string  `json:"postcreate,omitempty"`
 }
 
 // Create creates the file or directory represented by the node and its children.
 func (n *Node) Create(p Project, overwrite bool) error {
+	if n == nil || n.Info == nil {
+		return fmt.Errorf("project.Node.Create: missing node info")
+	}
+	if shared.Debug {
+		log.Printf("create path %q (directory=%t, overwrite=%t)", n.FullPath, n.Info.IsDir, overwrite)
+	}
 
 	exists, err := shared.PathExists(n.FullPath)
 	// Check if we have access to the path.
@@ -44,23 +52,31 @@ func (n *Node) Create(p Project, overwrite bool) error {
 	}
 	// If file, create the file.
 	if !n.Info.IsDir {
-		// Node is a file, create the file.
-		f, err := os.Create(n.FullPath)
+		tmplString := ""
+		if n.Info.Template != "" {
+			tmplString, err = p.generateTemplate(n.Info.Template, false)
+			if err != nil {
+				return fmt.Errorf("project.Node.Create: render %s - %s", n.FullPath, err)
+			}
+		}
+		flags := os.O_WRONLY | os.O_CREATE | os.O_EXCL
+		if overwrite {
+			flags = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+		}
+		f, err := os.OpenFile(n.FullPath, flags, 0666)
 		if err != nil {
 			return err
 		}
-		defer f.Close()
-
-		// generateTemplate will return an error if template is not found, which
-		// means the path is empty.
-		tmplString, _ := p.generateTemplate(n.Info.Template, false)
-		// If template string is not empty, it has been generated.
-		// We could also check for lack of error here, if err == nil.
-		if tmplString != "" {
-			num, err := f.WriteString(tmplString)
-			if err != nil || num != len(tmplString) {
-				return fmt.Errorf("project.Node.Create: error writing %s - %s", n.FullPath, err)
-			}
+		num, writeErr := f.WriteString(tmplString)
+		closeErr := f.Close()
+		if writeErr != nil {
+			return fmt.Errorf("project.Node.Create: error writing %s - %s", n.FullPath, writeErr)
+		}
+		if num != len(tmplString) {
+			return fmt.Errorf("project.Node.Create: short write to %s", n.FullPath)
+		}
+		if closeErr != nil {
+			return closeErr
 		}
 	}
 	// Create all node's children.

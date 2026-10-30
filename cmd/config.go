@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 	"time"
 
 	prompt "github.com/c-bata/go-prompt"
 	"github.com/parsiya/borrowedtime/config"
+	"github.com/parsiya/borrowedtime/shared"
 	"github.com/starkriedesel/prompter"
 )
 
@@ -59,8 +60,9 @@ func ConfigCmd() prompter.Command {
 
 // resetExecutor resets borrowed time and optionally creates a backup.
 func resetExecutor(args prompter.CmdArgs) (err error) {
-	fmt.Println("inside resetExecutor")
-	fmt.Printf("args: %v\n", args)
+	if shared.Debug {
+		log.Print("command: config reset")
+	}
 	// If backup is specified, try and get the file name from first value.
 	backupFile := ""
 	createBackup := false
@@ -78,8 +80,9 @@ func resetExecutor(args prompter.CmdArgs) (err error) {
 // backupExecutor creates a backup. If no filename is specified, one with the
 // current timestamp is created.
 func backupExecutor(args prompter.CmdArgs) error {
-	fmt.Println("inside backupExecutor")
-	fmt.Printf("args: %v\n", args)
+	if shared.Debug {
+		log.Print("command: config backup")
+	}
 	if args.Contains("-file") {
 		filename, err := args.GetFirstValue("-file")
 		if err != nil {
@@ -105,8 +108,9 @@ func resetCompleter(optName string, _ []string) []prompt.Suggest {
 
 // templateExecutor restores a backup and secretly creates one.
 func configExecutor(args prompter.CmdArgs) error {
-	fmt.Println("inside templateExecutor")
-	fmt.Printf("config args: %v\n", args)
+	if shared.Debug {
+		log.Print("command: config")
+	}
 
 	if args.Contains("restore") {
 		restoreFile, err := args.GetFirstValue("restore")
@@ -144,8 +148,9 @@ func restoreCompleter(_ string, _ []string) []prompt.Suggest {
 
 // editConfigExecutor opens the config file with the workspace editor.
 func editConfigExecutor(args prompter.CmdArgs) error {
-	fmt.Println("inside editConfigExecutor")
-	fmt.Printf("config args: %v\n", args)
+	if shared.Debug {
+		log.Print("command: config edit")
+	}
 
 	// Open config file with default editor.
 	cfg, err := config.Read()

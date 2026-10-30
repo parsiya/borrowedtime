@@ -131,9 +131,10 @@ func ListFiles(root, pattern string) (files []string, err error) {
 	}
 
 	err = filepath.Walk(root, func(file string, info os.FileInfo, walkErr error) error {
-		// Convert file path to /, otherwise match will not work (for some reason).
-		file = filepath.ToSlash(file)
-		match, matchErr := filepath.Match(pattern, file)
+		if walkErr != nil {
+			return walkErr
+		}
+		match, matchErr := filepath.Match(pattern, info.Name())
 		if matchErr != nil {
 			return fmt.Errorf("shared.ListFiles: match error %s", matchErr.Error())
 		}
