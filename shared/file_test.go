@@ -1,7 +1,6 @@
 package shared
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -9,16 +8,12 @@ import (
 )
 
 func TestListFiles(t *testing.T) {
-	root, err := ioutil.TempDir("", "borrowedtime-files-")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(root)
+	root := t.TempDir()
 	if err := os.Mkdir(filepath.Join(root, "nested"), 0700); err != nil {
 		t.Fatal(err)
 	}
 	for _, name := range []string{"notes.md", "config.json", filepath.Join("nested", "todo.md")} {
-		if err := ioutil.WriteFile(filepath.Join(root, name), nil, 0600); err != nil {
+		if err := os.WriteFile(filepath.Join(root, name), nil, 0600); err != nil {
 			t.Fatal(err)
 		}
 	}

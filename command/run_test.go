@@ -2,7 +2,6 @@ package command
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -22,7 +21,7 @@ func TestCommandProcess(t *testing.T) {
 			os.Exit(7)
 		}
 		if len(args) == 3 && args[0] == "write" {
-			if err := ioutil.WriteFile(args[1], []byte(args[2]), 0600); err != nil {
+			if err := os.WriteFile(args[1], []byte(args[2]), 0600); err != nil {
 				os.Exit(2)
 			}
 			os.Exit(0)
@@ -33,11 +32,7 @@ func TestCommandProcess(t *testing.T) {
 }
 
 func TestRun(t *testing.T) {
-	root, err := ioutil.TempDir("", "borrowedtime-command-")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(root)
+	root := t.TempDir()
 	old, existed := os.LookupEnv("BORROWEDTIME_TEST_PROCESS")
 	if err := os.Setenv("BORROWEDTIME_TEST_PROCESS", "1"); err != nil {
 		t.Fatal(err)
@@ -55,7 +50,7 @@ func TestRun(t *testing.T) {
 	if err := Run([]Command{write}, root); err != nil {
 		t.Fatal(err)
 	}
-	content, err := ioutil.ReadFile(filepath.Join(root, "result.txt"))
+	content, err := os.ReadFile(filepath.Join(root, "result.txt"))
 	if err != nil || string(content) != literal {
 		t.Fatalf("content = %q, error = %v", content, err)
 	}
@@ -63,7 +58,7 @@ func TestRun(t *testing.T) {
 	if err := Run([]Command{write, second}, root); err != nil {
 		t.Fatal(err)
 	}
-	content, err = ioutil.ReadFile(filepath.Join(root, "result.txt"))
+	content, err = os.ReadFile(filepath.Join(root, "result.txt"))
 	if err != nil || string(content) != "second" {
 		t.Fatalf("commands ran out of order: content = %q, error = %v", content, err)
 	}

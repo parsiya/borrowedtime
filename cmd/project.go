@@ -86,7 +86,7 @@ func openProjectCompleter(_ string, _ []string) []prompt.Suggest {
 	if err != nil {
 		return sugs
 	}
-	// Get top-level directories with ioutil.ReadDir.
+	// Get top-level directories.
 	dirs, err := TopDirs(workspace)
 	if err != nil {
 		return sugs

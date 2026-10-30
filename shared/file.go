@@ -3,7 +3,7 @@ package shared
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -31,7 +31,7 @@ func ReadFileByte(filename string) ([]byte, error) {
 	}
 	defer f.Close()
 
-	return ioutil.ReadAll(f)
+	return io.ReadAll(f)
 }
 
 // ReadFileString is the same as ReadFile but returns a string.

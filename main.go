@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	prompt "github.com/c-bata/go-prompt"
 	"github.com/parsiya/borrowedtime/cmd"
@@ -12,6 +13,12 @@ import (
 )
 
 func main() {
+	flag.Usage = func() {
+		fmt.Fprintln(flag.CommandLine.Output(), "Usage: borrowedtime [-debug] [command ...]")
+		fmt.Fprintln(flag.CommandLine.Output(), "Without a command, starts the interactive prompt.")
+		fmt.Fprintln(flag.CommandLine.Output(), "Commands: deploy, config, project, command, exit")
+		flag.PrintDefaults()
+	}
 	flag.BoolVar(&shared.Debug, "debug", false, "enable diagnostic logging to stderr")
 	flag.Parse()
 
@@ -25,6 +32,13 @@ func main() {
 	err := comp.RegisterCommands(configCmd, deployCmd, projectCmd, commandCmd, exitCmd)
 	if err != nil {
 		panic(err)
+	}
+	if args := flag.Args(); len(args) > 0 {
+		if err := cmd.ExecuteCLI(comp, args); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
 	}
 
 	// Read the config file. If it does not exist, print an error.

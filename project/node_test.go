@@ -3,7 +3,6 @@ package project
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -21,7 +20,7 @@ func TestProjectCommandProcess(t *testing.T) {
 			if len(args) != 2 {
 				os.Exit(2)
 			}
-			if err := ioutil.WriteFile(args[0], []byte(args[1]), 0600); err != nil {
+			if err := os.WriteFile(args[0], []byte(args[1]), 0600); err != nil {
 				os.Exit(2)
 			}
 			os.Exit(0)
@@ -30,11 +29,7 @@ func TestProjectCommandProcess(t *testing.T) {
 }
 
 func TestNodeCreate(t *testing.T) {
-	root, err := ioutil.TempDir("", "borrowedtime-node-")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(root)
+	root := t.TempDir()
 	for _, key := range []string{"HOME", "USERPROFILE"} {
 		key := key
 		old, existed := os.LookupEnv(key)
@@ -61,7 +56,7 @@ func TestNodeCreate(t *testing.T) {
 		"invalid.md": "{{",
 		"failure.md": "{{ .MissingField }}",
 	} {
-		if err := ioutil.WriteFile(filepath.Join(templateDir, name), []byte(content), 0600); err != nil {
+		if err := os.WriteFile(filepath.Join(templateDir, name), []byte(content), 0600); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -85,7 +80,7 @@ func TestNodeCreate(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			path := filepath.Join(root, test.name+".md")
 			if test.exists {
-				if err := ioutil.WriteFile(path, []byte("original"), 0600); err != nil {
+				if err := os.WriteFile(path, []byte("original"), 0600); err != nil {
 					t.Fatal(err)
 				}
 			}
@@ -94,7 +89,7 @@ func TestNodeCreate(t *testing.T) {
 			if (err != nil) != test.wantError {
 				t.Fatalf("Create() error = %v, wantError %v", err, test.wantError)
 			}
-			content, readErr := ioutil.ReadFile(path)
+			content, readErr := os.ReadFile(path)
 			if test.wantError && !test.exists {
 				if !os.IsNotExist(readErr) {
 					t.Fatalf("failed render created file: %v", readErr)
@@ -136,7 +131,7 @@ func TestNodeCreate(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := ioutil.WriteFile(filepath.Join(root, "borrowedtime", "config.json"), cfg, 0600); err != nil {
+		if err := os.WriteFile(filepath.Join(root, "borrowedtime", "config.json"), cfg, 0600); err != nil {
 			t.Fatal(err)
 		}
 		projectTemplateDir := filepath.Join(root, "borrowedtime", "templates", "project")
@@ -155,7 +150,7 @@ func TestNodeCreate(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := ioutil.WriteFile(filepath.Join(dataDir, "commands.json"), batches, 0600); err != nil {
+		if err := os.WriteFile(filepath.Join(dataDir, "commands.json"), batches, 0600); err != nil {
 			t.Fatal(err)
 		}
 		for _, test := range []struct {
@@ -187,10 +182,10 @@ func TestNodeCreate(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				if err := ioutil.WriteFile(filepath.Join(projectTemplateDir, "sample.json"), templateBytes, 0600); err != nil {
+				if err := os.WriteFile(filepath.Join(projectTemplateDir, "sample.json"), templateBytes, 0600); err != nil {
 					t.Fatal(err)
 				}
-				if err := ioutil.WriteFile(filepath.Join(templateDir, "settings.json"), []byte(test.settings), 0600); err != nil {
+				if err := os.WriteFile(filepath.Join(templateDir, "settings.json"), []byte(test.settings), 0600); err != nil {
 					t.Fatal(err)
 				}
 				project := New(test.name)
@@ -211,7 +206,7 @@ func TestNodeCreate(t *testing.T) {
 				if test.settings != "" && project.ProjectConfig["client"] != "client" {
 					t.Fatalf("project config = %v", project.ProjectConfig)
 				}
-				content, err := ioutil.ReadFile(filepath.Join(project.ProjectRoot, "notes.md"))
+				content, err := os.ReadFile(filepath.Join(project.ProjectRoot, "notes.md"))
 				if err != nil || string(content) != "# "+test.name {
 					t.Fatalf("notes = %q, error = %v", content, err)
 				}

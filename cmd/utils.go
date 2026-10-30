@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -10,9 +10,71 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/parsiya/borrowedtime/config"
 	"github.com/parsiya/borrowedtime/shared"
+	"github.com/starkriedesel/prompter"
 )
 
 // Utilities.
+
+// ExecuteCLI dispatches shell arguments through the registered command tree.
+// Example: ExecuteCLI(comp, []string{"project", "create", "example"}).
+func ExecuteCLI(comp *prompter.Completer, args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("provide a command")
+	}
+	var selected *prompter.Command
+	for len(args) > 0 {
+		next, exists := comp.Commands[args[0]]
+		if !exists {
+			break
+		}
+		selected = next
+		comp = next.Completer
+		args = args[1:]
+	}
+	if selected == nil {
+		return fmt.Errorf("unknown command %q", args[0])
+	}
+	if selected.Executor == nil || (len(args) == 0 && len(comp.Commands) > 0) {
+		return fmt.Errorf("incomplete command %q", selected.Name)
+	}
+	parsed := prompter.CmdArgs{}
+	positionalOnly := false
+	for index := 0; index < len(args); index++ {
+		arg := args[index]
+		if arg == "--" && !positionalOnly {
+			positionalOnly = true
+			continue
+		}
+		option, exists := comp.Options[arg]
+		if exists && arg != " " && !positionalOnly {
+			if parsed.Contains(arg) && !option.Repeatable {
+				return fmt.Errorf("option %q specified more than once", arg)
+			}
+			if arg == "-overwrite" {
+				parsed[arg] = nil
+				continue
+			}
+			if index+1 == len(args) {
+				return fmt.Errorf("option %q requires a value", arg)
+			}
+			value := args[index+1]
+			if _, isOption := comp.Options[value]; (isOption && strings.HasPrefix(value, "-")) || value == "--" {
+				return fmt.Errorf("option %q requires a value", arg)
+			}
+			parsed[arg] = append(parsed[arg], value)
+			index++
+			continue
+		}
+		if strings.HasPrefix(arg, "-") && !positionalOnly {
+			return fmt.Errorf("unknown option %q", arg)
+		}
+		if _, allowed := comp.Options[" "]; !allowed || len(parsed["_"]) != 0 {
+			return fmt.Errorf("unexpected argument %q", arg)
+		}
+		parsed["_"] = append(parsed["_"], arg)
+	}
+	return selected.Executor(parsed)
+}
 
 // Table returns the [][]string in a tablewriter table.
 func Table(data [][]string, border bool) string {
@@ -30,8 +92,7 @@ func Table(data [][]string, border bool) string {
 // TopDirs returns the name and full path of top-level directories of root in this format:
 // [][]string{name, fullpath}.
 func TopDirs(root string) (dirs [][]string, err error) {
-	// Use ioutil.ReadDir to get a slice of []os.FileInfo.
-	files, err := ioutil.ReadDir(root)
+	files, err := os.ReadDir(root)
 	if err != nil {
 		return dirs, err
 	}

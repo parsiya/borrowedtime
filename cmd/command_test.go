@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"errors"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -13,10 +14,80 @@ import (
 	"github.com/starkriedesel/prompter"
 )
 
+func TestExecuteCLI(t *testing.T) {
+	failure := errors.New("handler failed")
+	var received prompter.CmdArgs
+	create := prompter.Command{
+		Name: "create",
+		Executor: func(args prompter.CmdArgs) error {
+			received = args
+			return nil
+		},
+	}
+	create.AddArguments(
+		prompter.Argument{Name: " "},
+		prompter.Argument{Name: "-template"},
+		prompter.Argument{Name: "-overwrite"},
+	)
+	project := prompter.Command{Name: "project", Executor: func(args prompter.CmdArgs) error {
+		received = args
+		return nil
+	}}
+	project.AddSubCommands(create)
+	project.AddArguments(prompter.Argument{Name: "open"})
+	completer := prompter.NewCompleter()
+	if err := completer.RegisterCommands(project, prompter.Command{
+		Name: "fail", Executor: func(prompter.CmdArgs) error { return failure },
+	}); err != nil {
+		t.Fatal(err)
+	}
+	for _, test := range []struct {
+		name string
+		args []string
+		want prompter.CmdArgs
+	}{
+		{"spaces", []string{"project", "create", "two words", "-template", "custom template", "-overwrite"}, prompter.CmdArgs{"_": {"two words"}, "-template": {"custom template"}, "-overwrite": nil}},
+		{"flags-first", []string{"project", "create", "-overwrite", "-template", "custom", "example"}, prompter.CmdArgs{"_": {"example"}, "-template": {"custom"}, "-overwrite": nil}},
+		{"literal", []string{"project", "create", "spaces ; & $HOME"}, prompter.CmdArgs{"_": {"spaces ; & $HOME"}}},
+		{"terminator", []string{"project", "create", "--", "-example"}, prompter.CmdArgs{"_": {"-example"}}},
+		{"named-option", []string{"project", "open", "two words"}, prompter.CmdArgs{"open": {"two words"}}},
+		{"option-as-value", []string{"project", "open", "open"}, prompter.CmdArgs{"open": {"open"}}},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			received = nil
+			if err := ExecuteCLI(completer, test.args); err != nil {
+				t.Fatal(err)
+			}
+			if !reflect.DeepEqual(received, test.want) {
+				t.Fatalf("args = %v, want %v", received, test.want)
+			}
+		})
+	}
+	for _, args := range [][]string{
+		nil,
+		{"unknown"},
+		{"project"},
+		{"project", "unknown"},
+		{"project", "create", "example", "-unknown"},
+		{"project", "create", "example", "-template"},
+		{"project", "create", "example", "-template", "-overwrite"},
+		{"project", "create", "example", "-overwrite", "-overwrite"},
+		{"project", "create", "example", "extra"},
+		{"project", "open"},
+	} {
+		if err := ExecuteCLI(completer, args); err == nil {
+			t.Fatalf("expected error for %v", args)
+		}
+	}
+	if err := ExecuteCLI(completer, []string{"fail"}); !errors.Is(err, failure) {
+		t.Fatalf("handler error lost: %v", err)
+	}
+}
+
 func TestCommandProcess(t *testing.T) {
 	for _, arg := range os.Args {
 		if arg == "--borrowedtime-command-test" {
-			if err := ioutil.WriteFile("command-ran.txt", []byte("done"), 0600); err != nil {
+			if err := os.WriteFile("command-ran.txt", []byte("done"), 0600); err != nil {
 				os.Exit(2)
 			}
 			os.Exit(0)
@@ -25,11 +96,7 @@ func TestCommandProcess(t *testing.T) {
 }
 
 func TestCommandMenu(t *testing.T) {
-	root, err := ioutil.TempDir("", "borrowedtime-menu-")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(root)
+	root := t.TempDir()
 	oldHome, hadHome := os.LookupEnv("HOME")
 	oldCache := homedir.DisableCache
 	if err := os.Setenv("HOME", root); err != nil {
@@ -65,7 +132,7 @@ func TestCommandMenu(t *testing.T) {
 		t.Fatal(err)
 	}
 	configPath := filepath.Join(dataDir, "commands.json")
-	if err := ioutil.WriteFile(configPath, batches, 0600); err != nil {
+	if err := os.WriteFile(configPath, batches, 0600); err != nil {
 		t.Fatal(err)
 	}
 	completer := prompter.NewCompleter()
@@ -90,7 +157,11 @@ func TestCommandMenu(t *testing.T) {
 	if err := os.Chdir(root); err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(oldDir)
+	defer func() {
+		if err := os.Chdir(oldDir); err != nil {
+			t.Errorf("restore working directory: %v", err)
+		}
+	}()
 	completer.Execute("command run setup")
 	if _, err := os.Stat(filepath.Join(root, "command-ran.txt")); err != nil {
 		t.Fatalf("command did not run in current directory: %v", err)
@@ -105,7 +176,7 @@ func TestCommandMenu(t *testing.T) {
 			t.Fatalf("expected argument error for %v", args)
 		}
 	}
-	if err := ioutil.WriteFile(configPath, []byte("{"), 0600); err != nil {
+	if err := os.WriteFile(configPath, []byte("{"), 0600); err != nil {
 		t.Fatal(err)
 	}
 	if err := listCommandExecutor(nil); err == nil {

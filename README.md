@@ -30,9 +30,26 @@ are supported; configure `workspace` and `editor` manually on Linux. Start Menu
 editor detection and automatic default-editor opening remain Windows-only.
 
 ## Installation
+Requires Go 1.16 or newer.
 
 1. `go get github.com/parsiya/borrowedtime`.
 2. `go run main.go` or `go build` to build the program.
+
+## Testing
+Run all tests with Go; no Node.js or external editor is needed:
+
+```sh
+go test ./...
+```
+
+CLI integration tests build the executable, use isolated temporary configuration
+and workspace directories, and verify generated files, command execution,
+backup/restore, argument handling, and exit codes. Test artifacts are removed
+automatically. To run only those scenarios:
+
+```sh
+go test . -run '^TestMainCLI$' -count=1 -v
+```
 
 ## dependencies
 Borrowed Time directly uses the following packages:
@@ -93,6 +110,24 @@ templates. A sample configuration file on Windows:
 
 ## Commands
 Borrowed Time has a few different commands.
+
+Run without arguments for the interactive prompt, or pass a command directly:
+
+```sh
+borrowedtime project list
+borrowedtime project create "client review"
+borrowedtime command run setup-git -project "client review"
+borrowedtime -debug config backup -file before-change
+```
+
+Direct commands use the same handlers as the interactive prompt, including
+configured editor launches. Successful commands exit with status 0. Command
+errors are written to stderr and exit with status 1; invalid global flags exit
+with status 2. Global flags such as `-debug` must precede the command. Use `-h`
+for startup help, or `--` before a positional name beginning with `-`.
+
+When invoking through an agent or process API, pass each argument as a separate
+argv value. Do not add literal quote characters around names containing spaces.
 
 Start with `borrowedtime -debug` to enable diagnostic logging on stderr.
 Logging is disabled by default. Diagnostics include command names, template names,
